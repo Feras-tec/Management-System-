@@ -1,20 +1,39 @@
+interface SortOption {
+  label: string;
+  value: string;
+}
+
 interface SortSelectProps {
   value: string;
+  options: SortOption[];
   onChange: (value: string) => void;
 }
 
-export default function SortSelect({ value, onChange }: SortSelectProps) {
+export default function SortSelect({
+  value,
+  options,
+  onChange,
+}: SortSelectProps) {
   return (
     <select
       className="select select-bordered w-full"
       value={value}
       onChange={(event) => onChange(event.target.value)}
     >
-      <option value="none">Sort By</option>
 
-      <option value="asc">Name A-Z</option>
+      <option value="">
+        Sort By
+      </option>
 
-      <option value="desc">Name Z-A</option>
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+        >
+          {option.label}
+        </option>
+      ))}
+
     </select>
   );
 }

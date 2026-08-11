@@ -7,18 +7,22 @@ import { router } from "./app/router";
 
 import { QueryProvider, ConfirmDialogProvider } from "./providers";
 
+import { AppPreferencesProvider } from "./context";
+
 import ToastProvider from "./providers/ToastProvider";
 
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryProvider>
-      <ToastProvider>
-        <ConfirmDialogProvider>
-          <RouterProvider router={router} />
-        </ConfirmDialogProvider>
-      </ToastProvider>
-    </QueryProvider>
+    <AppPreferencesProvider>
+      <QueryProvider>
+        <ToastProvider>
+          <ConfirmDialogProvider>
+            <RouterProvider router={router} />
+          </ConfirmDialogProvider>
+        </ToastProvider>
+      </QueryProvider>
+    </AppPreferencesProvider>
   </StrictMode>,
 );

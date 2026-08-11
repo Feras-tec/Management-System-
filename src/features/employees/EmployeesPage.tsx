@@ -143,7 +143,20 @@ export default function EmployeesPage() {
           label="All Positions"
         />
 
-        <SortSelect value={sort} onChange={setSort} />
+        <SortSelect
+          value={sort}
+          onChange={setSort}
+          options={[
+            {
+              label: "Name A-Z",
+              value: "asc",
+            },
+            {
+              label: "Name Z-A",
+              value: "desc",
+            },
+          ]}
+        />
       </div>
 
       <EmployeeList
