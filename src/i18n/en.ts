@@ -2,12 +2,14 @@ const en = {
   common: {
     appName: "Business MS",
     dashboard: "Dashboard",
+    bookings: "Bookings",
     employees: "Employees",
     products: "Products",
     customers: "Customers",
     sales: "Sales",
     reports: "Reports",
     settings: "Settings",
+    goToWebsite: "Go to Website",
     search: "Search",
     filter: "Filter",
     sortBy: "Sort by",
@@ -24,6 +26,7 @@ const en = {
 
   navbar: {
     dashboard: "Dashboard",
+    bookings: "Bookings",
     employees: "Employees",
     products: "Products",
     customers: "Customers",
@@ -31,6 +34,8 @@ const en = {
     reports: "Reports",
     language: "Language",
     theme: "Theme",
+    signIn: "Sign In",
+    signOut: "Sign Out",
   },
 
   dashboard: {
@@ -125,6 +130,7 @@ const en = {
       about: "About Us",
       contact: "Contact",
       booking: "Book an Appointment",
+      myBooking: "My booking",
     },
 
     footer: {

@@ -1,3 +1,5 @@
+import { useAppPreferences } from "../../../../context";
+import { formatEurMinor } from "../../../../utils/currency";
 import type { SalesReportProps } from "./SalesReport.types";
 
 export default function SalesReport({
@@ -5,6 +7,7 @@ export default function SalesReport({
   revenue,
   averageSale,
 }: SalesReportProps) {
+  const { language } = useAppPreferences();
   return (
     <div className="card bg-base-100 shadow">
       <div className="card-body">
@@ -16,11 +19,11 @@ export default function SalesReport({
           </p>
 
           <p>
-            Revenue: <strong>${revenue}</strong>
+            Revenue: <strong>{formatEurMinor(Math.round(revenue * 100), language)}</strong>
           </p>
 
           <p>
-            Average Sale: <strong>${averageSale.toFixed(2)}</strong>
+            Average Sale: <strong>{formatEurMinor(Math.round(averageSale * 100), language)}</strong>
           </p>
         </div>
       </div>

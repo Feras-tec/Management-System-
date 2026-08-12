@@ -1,0 +1,25 @@
+export const DEMO_ABOUT_CONTENT = {
+  founded: 2012,
+  experienceDe: "14+ Jahre Erfahrung",
+  experienceEn: "14+ years of experience",
+  servicesDe: "6 spezialisierte Leistungen",
+  servicesEn: "6 specialist services",
+  vehiclesDe: "1.000+ betreute Fahrzeuge",
+  vehiclesEn: "1,000+ vehicles cared for",
+  bookingDe: "Digitale Terminbuchung",
+  bookingEn: "Digital appointment booking",
+  valuesDe: [
+    "Sorgfältige Arbeit",
+    "Transparente Abläufe",
+    "Fahrzeugorientierte Lösungen",
+    "Moderne Materialien und Werkzeuge",
+    "Einfache Terminplanung",
+  ],
+  valuesEn: [
+    "Careful workmanship",
+    "Transparent processes",
+    "Vehicle-focused solutions",
+    "Modern materials and tools",
+    "Easy appointment planning",
+  ],
+} as const;

@@ -1,77 +1,103 @@
-# React + TypeScript + Vite
+# Business Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React and Fastify business-management application for automotive services. It includes a public service catalogue and booking flow plus an authenticated administration area for bookings, customers, products and inventory, sales and payments, employees, reports, and business settings.
 
-Currently, two official plugins are available:
+## Architecture
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Frontend: React 19, TypeScript, Vite, TanStack Router/Query/Form, Zod, Clerk, Tailwind/DaisyUI, Framer Motion.
+- Backend: Fastify, TypeScript, Clerk authentication and role authorization.
+- Persistence: PostgreSQL with Prisma migrations and business-scoped records.
+- Default local URLs: `http://localhost:5173` and `http://127.0.0.1:3001`.
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- Node.js 20.19 or newer and npm.
+- PostgreSQL 16 or a compatible supported PostgreSQL release.
+- A Clerk application with matching frontend publishable and backend credentials.
 
-Note: This will impact Vite dev & build performances.
+## Environment
 
-## Expanding the ESLint configuration
+Copy `.env.example` to `.env` for the frontend and `server/.env.example` to `server/.env` for the API. Replace placeholders locally; never commit either real environment file.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Frontend variables:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- `VITE_CLERK_PUBLISHABLE_KEY`
+- `VITE_API_BASE_URL`
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Backend variables:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `NODE_ENV`, `HOST`, `PORT`, `LOG_LEVEL`
+- `FRONTEND_ORIGIN`
+- `DATABASE_URL`
+- `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`
 
+## Install and database setup
+
+```bash
+npm install
+cd server
+npm install
+npm run prisma:generate
+npm run prisma:migrate:deploy
+npm run db:seed
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Use a dedicated database for tests through `TEST_DATABASE_URL`. Do not point tests at production data. Admin bootstrap is explicit: supply `BOOTSTRAP_ADMIN_CLERK_USER_ID` only for the intended initial Clerk user when running the seed.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Development
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+In separate terminals:
 
+```bash
+npm run dev
 ```
+
+```bash
+cd server
+npm run dev
+```
+
+## Verification
+
+Frontend:
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+Backend:
+
+```bash
+cd server
+npm test
+npm run lint
+npm run typecheck
+npm run build
+npm run prisma:validate
+npm run prisma:migrate:status
+```
+
+## Production startup
+
+Build the frontend and serve `dist/` from a static host with SPA fallback. Build and start the API with:
+
+```bash
+cd server
+npm run build
+npm start
+```
+
+Apply committed migrations with `npm run prisma:migrate:deploy` before starting a production release. Do not use `prisma db push` for releases.
+
+## Release checklist
+
+- Configure production Clerk keys, API URL, frontend origin, and PostgreSQL URL in the deployment platform.
+- Apply migrations and verify `/health`.
+- Confirm Clerk login, `/api/v1/me`, role policies, booking, inventory, sales, and payments.
+- Supply verified legal Impressum and contact details before a public launch.
+- Run frontend and backend verification commands and perform a secret scan.
+- Review migrations, backups, monitoring, CORS, TLS, and rollback procedures before deployment.
+
+The source catalogue directory `.catalog-source/`, local `.env` files, build outputs, and credentials must remain untracked.

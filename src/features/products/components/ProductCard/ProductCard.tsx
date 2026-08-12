@@ -14,7 +14,7 @@ export default function ProductCard({
 
         <p>Category: {product.category}</p>
 
-        <p>Price: ${product.price}</p>
+        <p>Price: €{product.price}</p>
 
         <p>Stock: {product.stock}</p>
 

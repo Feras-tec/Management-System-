@@ -4,6 +4,12 @@ import { routeTree } from "../routeTree.gen";
 
 export const router = createRouter({
   routeTree,
+  context: {
+    auth: {
+      isSignedIn: false,
+      getAccessToken: async () => null,
+    },
+  },
 });
 
 declare module "@tanstack/react-router" {

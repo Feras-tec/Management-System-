@@ -1,61 +1,66 @@
 import { Link } from "@tanstack/react-router";
-
-import { useTranslation } from "../../../i18n";
-
+import { CalendarCheck } from "lucide-react";
+import { useAppPreferences } from "../../../context";
 export default function PublicFooter() {
-  const { t } = useTranslation();
-
+  const { language } = useAppPreferences();
+  const de = language === "de";
   return (
-    <footer className="border-t border-base-300 bg-base-100">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
+    <footer className="border-t border-base-300 bg-base-200/60">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-3">
         <div>
-          <h2 className="mb-3 text-xl font-bold">AutoCare</h2>
-
-          <p className="max-w-sm text-sm text-base-content/60">
-            {t.public.footer.description}
+          <div className="flex items-center gap-3 text-xl font-black">
+            <img
+              src="/brand/autocare-logo.svg"
+              alt="AutoCare"
+              className="size-10"
+            />
+            <span>AutoCare</span>
+          </div>
+          <p className="mt-4 max-w-sm text-sm leading-6 opacity-70">
+            {de
+              ? "Professionelle Fahrzeugpflege und spezialisierte Leistungen mit einem einfachen, transparenten Buchungsablauf."
+              : "Professional vehicle care and specialist services with a simple, transparent booking experience."}
           </p>
         </div>
-
-        <div>
-          <h3 className="mb-3 font-semibold">
-            {t.public.footer.links}
-          </h3>
-
-          <div className="flex flex-col gap-2 text-sm">
-            <Link to="/" className="link-hover link">
-              {t.public.nav.home}
+        <nav aria-label={de ? "Fußzeilen-Navigation" : "Footer navigation"}>
+          <h2 className="font-bold">{de ? "Entdecken" : "Explore"}</h2>
+          <div className="mt-4 grid gap-2 text-sm">
+            <Link to="/services" className="link-hover">
+              {de ? "Leistungen" : "Services"}
             </Link>
-
-            <Link to="/services" className="link-hover link">
-              {t.public.nav.services}
+            <Link to="/booking" className="link-hover">
+              {de ? "Termin buchen" : "Book appointment"}
             </Link>
-
-            <Link to="/about" className="link-hover link">
-              {t.public.nav.about}
-            </Link>
-
-            <Link to="/contact" className="link-hover link">
-              {t.public.nav.contact}
+            <Link to="/my-booking" className="link-hover">
+              {de ? "Meine Buchung" : "My booking"}
             </Link>
           </div>
-        </div>
-
-        <div>
-          <h3 className="mb-3 font-semibold">
-            {t.public.footer.contact}
-          </h3>
-
-          <div className="space-y-2 text-sm text-base-content/60">
-            <p>📍 Berlin, Deutschland</p>
-            <p>📞 +49 30 12345678</p>
-            <p>✉️ info@autocare.de</p>
+        </nav>
+        <nav aria-label={de ? "Unternehmen" : "Company"}>
+          <h2 className="font-bold">{de ? "Unternehmen" : "Company"}</h2>
+          <div className="mt-4 grid gap-2 text-sm">
+            <Link to="/about" className="link-hover">
+              {de ? "Über uns" : "About"}
+            </Link>
+            <Link to="/contact" className="link-hover">
+              {de ? "Kontakt" : "Contact"}
+            </Link>
+            <Link to="/impressum" className="link-hover">
+              Impressum
+            </Link>
+            <Link
+              to="/booking"
+              className="btn btn-primary btn-sm mt-2 w-fit gap-2"
+            >
+              <CalendarCheck size={17} />
+              {de ? "Termin buchen" : "Book now"}
+            </Link>
           </div>
-        </div>
+        </nav>
       </div>
-
-      <div className="border-t border-base-300 py-5 text-center text-sm text-base-content/50">
+      <div className="border-t border-base-300 px-4 py-5 text-center text-sm opacity-60">
         © {new Date().getFullYear()} AutoCare.{" "}
-        {t.public.footer.rights}
+        {de ? "Alle Rechte vorbehalten." : "All rights reserved."}
       </div>
     </footer>
   );

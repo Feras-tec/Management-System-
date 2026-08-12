@@ -111,6 +111,7 @@ export function AppPreferencesProvider({
   }, [state.theme]);
 
   useEffect(() => {
+    document.documentElement.lang = state.language;
     localStorage.setItem("language", state.language);
   }, [state.language]);
 

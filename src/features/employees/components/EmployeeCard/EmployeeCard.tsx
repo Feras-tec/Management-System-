@@ -97,7 +97,7 @@ export default function EmployeeCard({
               </p>
 
               <p className="text-sm font-semibold">
-                ${employee.salary.toLocaleString()}
+                €{employee.salary.toLocaleString()}
               </p>
             </div>
           </div>

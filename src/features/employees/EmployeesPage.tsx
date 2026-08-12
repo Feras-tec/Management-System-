@@ -1,169 +1,39 @@
-import { useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
+import { z } from "zod";
+import { motion, useReducedMotion } from "framer-motion";
+import { BriefcaseBusiness, Eye, Link2, ShieldCheck, UserPlus, UserRound } from "lucide-react";
+import { useAppPreferences } from "../../context";
+import { formatEurMinor } from "../../utils/currency";
+import { employeeApi, type Employee, type EmployeeBody, type EmployeeStatus, type UserRole } from "./api";
 
-import { useQuery } from "@tanstack/react-query";
+const schema = z.object({ firstName:z.string().trim().min(1), lastName:z.string().trim().min(1), email:z.string().trim().email().or(z.literal("")), phone:z.string(), position:z.string().trim().min(2), salaryEuros:z.string().refine(v=>v===""||Number(v)>=0), status:z.enum(["ACTIVE","INACTIVE","ON_LEAVE"]), hiredAt:z.string(), notes:z.string() });
+const minor=(value:string)=>Math.round(Number(value)*100);
+function label(value:string,de:boolean){const map:Record<string,[string,string]>={ACTIVE:["Aktiv","Active"],INACTIVE:["Inaktiv","Inactive"],ON_LEAVE:["Abwesend","On leave"],ADMIN:["Administrator","Administrator"],MANAGER:["Manager","Manager"],EMPLOYEE:["Mitarbeiter","Employee"]};return map[value]?.[de?0:1]??value}
+function errorLabel(value:string,de:boolean){const map:Record<string,[string,string]>={LAST_ADMIN_PROTECTED:["Der letzte Administrator ist geschützt.","The last administrator is protected."],USER_ALREADY_LINKED:["Dieses Konto ist bereits verknüpft.","This account is already linked."],EMPLOYEE_ALREADY_LINKED:["Dieser Mitarbeiter ist bereits verknüpft.","This employee is already linked."]};return map[value]?.[de?0:1]??value}
+function accountText(employee:Employee,de:boolean){if(!employee.linkedUser)return de?"Nicht verknüpft":"Not linked";return `${label(employee.linkedUser.role,de)} · ${employee.linkedUser.isActive?(de?"Zugang aktiv":"Access active"):(de?"Zugang inaktiv":"Access inactive")}`}
+function dateText(value:string|null,de:boolean){return value?new Intl.DateTimeFormat(de?"de-DE":"en-IE",{dateStyle:"medium"}).format(new Date(value)):"—"}
 
-import { useConfirmDialog } from "../../providers";
+function EmployeeForm({employee,onClose,token,isAdmin}:{employee:Employee|null;onClose:()=>void;token:()=>Promise<string|null>;isAdmin:boolean}){const {language}=useAppPreferences();const de=language==="de";const qc=useQueryClient();const [error,setError]=useState("");const form=useForm({defaultValues:{firstName:employee?.firstName??"",lastName:employee?.lastName??"",email:employee?.email??"",phone:employee?.phone??"",position:employee?.position??"",salaryEuros:employee?.salaryMinor==null?"":String(employee.salaryMinor/100),status:employee?.status??"ACTIVE" as EmployeeStatus,hiredAt:employee?.hiredAt?.slice(0,10)??"",notes:employee?.notes??""},onSubmit:async({value})=>{const parsed=schema.safeParse(value);if(!parsed.success){setError(de?"Bitte prüfen Sie alle Pflichtfelder.":"Please check all required fields.");return}const body:EmployeeBody={firstName:value.firstName,lastName:value.lastName,email:value.email||null,phone:value.phone||null,position:value.position,...(isAdmin?{salaryMinor:value.salaryEuros===""?null:minor(value.salaryEuros)}:{}),status:value.status,hiredAt:value.hiredAt||null,notes:value.notes||null};try{if(employee)await employeeApi.update(token,employee.id,body);else await employeeApi.create(token,body);await qc.invalidateQueries({queryKey:["employees-db"]});onClose()}catch(caught){setError(errorLabel(caught instanceof Error?caught.message:"SAVE_FAILED",de))}}});const fields=isAdmin?["firstName","lastName","email","phone","position","salaryEuros","hiredAt","notes"] as const:["firstName","lastName","email","phone","position","hiredAt","notes"] as const;return <div className="modal modal-open"><motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="modal-box max-w-3xl"><h2 className="text-xl font-bold sm:text-2xl">{employee?(de?"Mitarbeiter bearbeiten":"Edit employee"):(de?"Mitarbeiter erstellen":"Create employee")}</h2><form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={event=>{event.preventDefault();void form.handleSubmit()}}>{fields.map(name=><form.Field key={name} name={name}>{field=><label className={name==="notes"?"md:col-span-2":""}><span>{({firstName:de?"Vorname":"First name",lastName:de?"Nachname":"Last name",email:"Email",phone:de?"Telefon":"Phone",position:"Position",salaryEuros:de?"Gehalt (EUR)":"Salary (EUR)",hiredAt:de?"Eintrittsdatum":"Hire date",notes:de?"Notizen":"Notes"})[name]}</span>{name==="notes"?<textarea className="textarea textarea-bordered w-full" value={field.state.value} onChange={event=>field.handleChange(event.target.value)}/>:<input className="input input-bordered w-full" type={name==="salaryEuros"?"number":name==="hiredAt"?"date":"text"} min={name==="salaryEuros"?"0":undefined} step={name==="salaryEuros"?".01":undefined} value={field.state.value} onChange={event=>field.handleChange(event.target.value)}/>}</label>}</form.Field>)}<form.Field name="status">{field=><label>{de?"Status":"Status"}<select aria-label={de?"Status":"Status"} className="select select-bordered w-full" value={field.state.value} onChange={event=>field.handleChange(event.target.value as EmployeeStatus)}><option value="ACTIVE">{label("ACTIVE",de)}</option><option value="ON_LEAVE">{label("ON_LEAVE",de)}</option><option value="INACTIVE">{label("INACTIVE",de)}</option></select></label>}</form.Field>{error&&<div className="alert alert-error md:col-span-2">{error}</div>}<div className="modal-action md:col-span-2"><button type="button" className="btn" onClick={onClose}>{de?"Abbrechen":"Cancel"}</button><button className="btn btn-primary">{de?"Speichern":"Save"}</button></div></form></motion.div></div>}
 
-import {
-  SearchInput,
-  SelectFilter,
-  SortSelect,
-} from "../../components/filters";
-
-import {
-  employeesQuery,
-  useCreateEmployeeMutation,
-  useUpdateEmployeeMutation,
-  useDeleteEmployeeMutation,
-} from "./queries";
-
-import { EmployeeForm, EmployeeList } from "./components";
-
-import { EmployeePosition } from "./types";
-
-import type { Employee } from "./types";
-
-import type { EmployeeFormData } from "./schemas";
-
-export default function EmployeesPage() {
-  const [selectedEmployee, setSelectedEmployee] = useState<
-    Employee | undefined
-  >();
-
-  const [search, setSearch] = useState("");
-
-  const [positionFilter, setPositionFilter] = useState("all");
-
-  const [sort, setSort] = useState("none");
-
-  const { confirm } = useConfirmDialog();
-
-  const { data: employees = [], isLoading, isError } = useQuery(employeesQuery);
-
-  const createMutation = useCreateEmployeeMutation();
-
-  const updateMutation = useUpdateEmployeeMutation();
-
-  const deleteMutation = useDeleteEmployeeMutation();
-
-  const handleSubmit = useCallback(
-    (employee: EmployeeFormData) => {
-      if (selectedEmployee) {
-        updateMutation.mutate({
-          id: selectedEmployee.id,
-          ...employee,
-        });
-
-        setSelectedEmployee(undefined);
-
-        return;
-      }
-
-      createMutation.mutate(employee);
-    },
-    [selectedEmployee, createMutation, updateMutation],
-  );
-
-  const handleEdit = useCallback((employee: Employee) => {
-    setSelectedEmployee(employee);
-  }, []);
-
-  const handleDelete = useCallback(
-    async (id: string) => {
-      const confirmDelete = await confirm({
-        title: "Delete Employee",
-        message: "Do you really want to delete this employee?",
-        confirmText: "Delete",
-        cancelText: "Cancel",
-      });
-
-      if (!confirmDelete) {
-        return;
-      }
-
-      deleteMutation.mutate(id);
-    },
-    [confirm, deleteMutation],
-  );
-
-  const filteredEmployees = employees
-    .filter((employee) => {
-      const matchesSearch = `${employee.firstName} ${employee.lastName}`
-        .toLowerCase()
-        .includes(search.toLowerCase());
-
-      const matchesPosition =
-        positionFilter === "all" || employee.position === positionFilter;
-
-      return matchesSearch && matchesPosition;
-    })
-    .sort((a, b) => {
-      const nameA = `${a.firstName} ${a.lastName}`;
-      const nameB = `${b.firstName} ${b.lastName}`;
-
-      if (sort === "asc") {
-        return nameA.localeCompare(nameB);
-      }
-
-      if (sort === "desc") {
-        return nameB.localeCompare(nameA);
-      }
-
-      return 0;
-    });
-
-  if (isLoading) {
-    return <div className="loading loading-spinner" />;
-  }
-
-  if (isError) {
-    return <div className="alert alert-error">Failed to load employees.</div>;
-  }
-
-  return (
-    <section className="space-y-8">
-      <h1 className="text-4xl font-bold">Employees</h1>
-
-      <EmployeeForm
-        onSubmit={handleSubmit}
-        selectedEmployee={selectedEmployee}
-      />
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search employee..."
-        />
-
-        <SelectFilter
-          value={positionFilter}
-          options={Object.values(EmployeePosition)}
-          onChange={setPositionFilter}
-          label="All Positions"
-        />
-
-        <SortSelect
-          value={sort}
-          onChange={setSort}
-          options={[
-            {
-              label: "Name A-Z",
-              value: "asc",
-            },
-            {
-              label: "Name Z-A",
-              value: "desc",
-            },
-          ]}
-        />
-      </div>
-
-      <EmployeeList
-        employees={filteredEmployees}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-      />
-    </section>
-  );
+function Details({employee,onClose,isAdmin}:{employee:Employee;onClose:()=>void;isAdmin:boolean}) {
+  const {language}=useAppPreferences();
+  const de=language==="de";
+  const dialogRef=useRef<HTMLDialogElement>(null);
+  const items=[[de?"Mitarbeiternummer":"Employee number",employee.employeeNumber],[de?"Position":"Position",employee.position],["Email",employee.email||"—"],[de?"Telefon":"Phone",employee.phone||"—"],[de?"Status":"Status",label(employee.status,de)],[de?"Eintrittsdatum":"Hired date",dateText(employee.hiredAt,de)],[de?"Systemkonto":"System account",accountText(employee,de)]];
+  useEffect(()=>{const dialog=dialogRef.current;if(!dialog)return;if(!dialog.open)dialog.showModal();return()=>{if(dialog.open)dialog.close()}},[]);
+  return <dialog ref={dialogRef} className="modal" aria-labelledby="employee-details-title" onCancel={event=>{event.preventDefault();onClose()}} onClick={event=>{if(event.target===event.currentTarget)onClose()}}>
+    <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="modal-box max-h-[calc(100dvh-2rem)] max-w-2xl overflow-y-auto" onClick={event=>event.stopPropagation()}>
+      <div className="flex items-center gap-3"><div className="rounded-xl bg-primary/10 p-3 text-primary"><UserRound/></div><div><h2 id="employee-details-title" className="text-xl font-bold">{employee.firstName} {employee.lastName}</h2><p className="text-sm opacity-65">{employee.position}</p></div></div>
+      <dl className="mt-5 grid gap-3 sm:grid-cols-2">{items.map(([term,value])=><div key={term} className="rounded-xl bg-base-200 p-3"><dt className="text-xs uppercase tracking-wide opacity-60">{term}</dt><dd className="mt-1 break-words font-medium">{value}</dd></div>)}{isAdmin&&<div className="rounded-xl bg-base-200 p-3"><dt className="text-xs uppercase tracking-wide opacity-60">{de?"Gehalt":"Salary"}</dt><dd className="mt-1 font-semibold">{employee.salaryMinor==null?"—":formatEurMinor(employee.salaryMinor,language)}</dd></div>}{employee.notes&&<div className="rounded-xl bg-base-200 p-3 sm:col-span-2"><dt className="text-xs uppercase tracking-wide opacity-60">{de?"Notizen":"Notes"}</dt><dd className="mt-1 whitespace-pre-wrap">{employee.notes}</dd></div>}</dl>
+      <div className="modal-action"><button autoFocus className="btn" onClick={onClose}>{de?"Schließen":"Close"}</button></div>
+    </motion.div>
+  </dialog>
 }
+
+function AdminDialog({employee,onClose,token}:{employee:Employee;onClose:()=>void;token:()=>Promise<string|null>}){const {language}=useAppPreferences();const de=language==="de";const qc=useQueryClient();const users=useQuery({queryKey:["unlinked-users"],queryFn:()=>employeeApi.users(token),enabled:!employee.linkedUser});const [userId,setUserId]=useState("");const [role,setRole]=useState<UserRole>(employee.linkedUser?.role??"EMPLOYEE");const [confirm,setConfirm]=useState<"role"|"access"|"unlink"|null>(null);const [error,setError]=useState("");async function refresh(action:()=>Promise<unknown>){try{await action();await qc.invalidateQueries({queryKey:["employees-db"]});await qc.invalidateQueries({queryKey:["unlinked-users"]});onClose()}catch(caught){setError(errorLabel(caught instanceof Error?caught.message:"ACTION_FAILED",de))}}return <div className="modal modal-open"><div className="modal-box"><h2 className="text-xl font-bold">{de?"Systemzugang":"System access"} · {employee.firstName} {employee.lastName}</h2>{!employee.linkedUser?<><select aria-label={de?"Verfügbares Konto":"Available account"} className="select select-bordered mt-4 w-full" value={userId} onChange={event=>setUserId(event.target.value)}><option value="">{de?"Konto auswählen":"Select account"}</option>{users.data?.map(user=><option key={user.id} value={user.id}>{label(user.role,de)} · {user.isActive?(de?"Aktiv":"Active"):(de?"Inaktiv":"Inactive")}</option>)}</select><button className="btn btn-primary mt-3" disabled={!userId} onClick={()=>void refresh(()=>employeeApi.link(token,employee.id,userId))}><Link2/> {de?"Konto verknüpfen":"Link account"}</button></>:<><div className="mt-4 rounded-xl bg-base-200 p-4"><p>{de?"Rolle":"Role"}: {label(employee.linkedUser.role,de)}</p><p>{de?"Zugang":"Access"}: {employee.linkedUser.isActive?(de?"Aktiv":"Active"):(de?"Inaktiv":"Inactive")}</p></div><select aria-label={de?"Neue Rolle":"New role"} className="select select-bordered mt-3 w-full" value={role} onChange={event=>setRole(event.target.value as UserRole)}><option value="ADMIN">{label("ADMIN",de)}</option><option value="MANAGER">{label("MANAGER",de)}</option><option value="EMPLOYEE">{label("EMPLOYEE",de)}</option></select><div className="mt-3 flex flex-wrap gap-2"><button className="btn" onClick={()=>setConfirm("role")}><ShieldCheck/> {de?"Rolle ändern":"Change role"}</button><button className="btn" onClick={()=>setConfirm("access")}>{employee.linkedUser.isActive?(de?"Zugang deaktivieren":"Deactivate access"):(de?"Zugang aktivieren":"Activate access")}</button><button className="btn btn-error" onClick={()=>setConfirm("unlink")}>{de?"Verknüpfung lösen":"Unlink"}</button></div>{confirm&&<div className="alert alert-warning mt-3"><span>{de?"Diese sensible Änderung bestätigen?":"Confirm this sensitive change?"}</span><button className="btn btn-sm" onClick={()=>void refresh(()=>confirm==="role"?employeeApi.role(token,employee.linkedUser!.id,role):confirm==="access"?employeeApi.access(token,employee.linkedUser!.id,!employee.linkedUser!.isActive):employeeApi.unlink(token,employee.id))}>{de?"Bestätigen":"Confirm"}</button></div>}</>}{error&&<div className="alert alert-error mt-3">{error}</div>}<div className="modal-action"><button className="btn" onClick={onClose}>{de?"Schließen":"Close"}</button></div></div></div>}
+
+export function EmployeesPageView({token}:{token:()=>Promise<string|null>}){const {language}=useAppPreferences();const de=language==="de";const reduced=useReducedMotion();const qc=useQueryClient();const [page,setPage]=useState(1);const [search,setSearch]=useState("");const [status,setStatus]=useState("");const [position,setPosition]=useState("");const [linked,setLinked]=useState("");const [editing,setEditing]=useState<Employee|null|undefined>(undefined);const [details,setDetails]=useState<Employee|null>(null);const [admin,setAdmin]=useState<Employee|null>(null);const [deactivate,setDeactivate]=useState<Employee|null>(null);const me=useQuery({queryKey:["employee-me"],queryFn:()=>employeeApi.me(token)});const isAdmin=me.data?.user.role==="ADMIN";const canManage=isAdmin||me.data?.user.role==="MANAGER";const query=new URLSearchParams({page:String(page),limit:"10",sort:"lastName",order:"asc",...(search&&{search}),...(status&&{status}),...(position&&{position}),...(linked&&{linkedUser:linked})}).toString();const employees=useQuery({queryKey:["employees-db",query],queryFn:()=>employeeApi.list(token,query)});const total=employees.data?.total??0;const doDeactivate=useMutation({mutationFn:(id:string)=>employeeApi.deactivate(token,id),onSuccess:async()=>{await qc.invalidateQueries({queryKey:["employees-db"]});setDeactivate(null)}});return <section className="space-y-5 sm:space-y-6"><div className="flex flex-wrap justify-between gap-3"><div><h1 className="text-3xl font-bold sm:text-4xl">{de?"Mitarbeiter":"Employees"}</h1><p className="mt-1 text-sm opacity-65">{de?"Mitarbeiter, Status und Systemzugänge verwalten.":"Manage employee profiles, status, and system access."}</p></div>{isAdmin&&<button className="btn btn-primary" onClick={()=>setEditing(null)}><UserPlus/> {de?"Mitarbeiter erstellen":"Create employee"}</button>}</div><div className="grid gap-3 md:grid-cols-4"><input className="input input-bordered" placeholder={de?"Name, Nummer oder Position suchen":"Search name, number or position"} value={search} onChange={event=>{setSearch(event.target.value);setPage(1)}}/><select aria-label={de?"Statusfilter":"Status filter"} className="select select-bordered" value={status} onChange={event=>setStatus(event.target.value)}><option value="">{de?"Alle Status":"All statuses"}</option><option value="ACTIVE">{label("ACTIVE",de)}</option><option value="ON_LEAVE">{label("ON_LEAVE",de)}</option><option value="INACTIVE">{label("INACTIVE",de)}</option></select><input className="input input-bordered" placeholder={de?"Position filtern":"Filter position"} value={position} onChange={event=>setPosition(event.target.value)}/><select aria-label={de?"Kontofilter":"Account filter"} className="select select-bordered" value={linked} onChange={event=>setLinked(event.target.value)}><option value="">{de?"Alle Konten":"All accounts"}</option><option value="true">{de?"Verknüpft":"Linked"}</option><option value="false">{de?"Nicht verknüpft":"Unlinked"}</option></select></div>{employees.isPending&&<span role="status" className="loading loading-spinner"/>}{employees.isError&&<div className="alert alert-error">{de?"Mitarbeiter konnten nicht geladen werden.":"Employees could not be loaded."}</div>}{employees.data?.items.length===0&&<div className="alert">{de?"Keine Mitarbeiter gefunden.":"No employees found."}</div>}<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{employees.data?.items.map((employee,index)=><motion.article key={employee.id} initial={reduced?false:{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:reduced?0:0.24,delay:reduced?0:index*0.04}} className="card h-full border border-base-300 bg-base-100 shadow-sm transition-shadow duration-200 hover:shadow-md"><div className="card-body gap-4 p-4 sm:p-5"><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><div className="rounded-xl bg-primary/10 p-2.5 text-primary"><UserRound className="size-5"/></div><div className="min-w-0"><h2 className="truncate text-lg font-bold">{employee.firstName} {employee.lastName}</h2><p className="font-mono text-xs opacity-65">{employee.employeeNumber}</p></div></div><span className="badge badge-outline whitespace-nowrap">{label(employee.status,de)}</span></div><div className="space-y-2 text-sm"><p className="flex items-center gap-2"><BriefcaseBusiness className="size-4 opacity-60"/> {employee.position}</p><p className="flex items-start gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 opacity-60"/> <span>{accountText(employee,de)}</span></p>{employee.status==="INACTIVE"&&employee.linkedUser?.isActive&&<p className="text-warning">{de?"Inaktiv, aber Systemzugang aktiv":"Inactive but system access remains active"}</p>}</div><div className="card-actions mt-auto flex-wrap gap-2"><button className="btn btn-sm" onClick={()=>setDetails(employee)}><Eye/> {de?"Details ansehen":"Details"}</button>{canManage&&<button className="btn btn-sm" onClick={()=>setEditing(employee)}>{de?"Bearbeiten":"Edit"}</button>}{isAdmin&&<button className="btn btn-sm" onClick={()=>setAdmin(employee)}><Link2/> {de?"Zugang":"Access"}</button>}{canManage&&employee.status!=="INACTIVE"&&<button className="btn btn-sm btn-error" onClick={()=>setDeactivate(employee)}>{de?"Deaktivieren":"Deactivate"}</button>}</div></div></motion.article>)}</div><div className="flex items-center justify-between"><button className="btn btn-sm" disabled={page===1} onClick={()=>setPage(value=>value-1)}>{de?"Zurück":"Previous"}</button><span>{page} / {Math.max(1,Math.ceil(total/10))}</span><button className="btn btn-sm" disabled={page*10>=total} onClick={()=>setPage(value=>value+1)}>{de?"Weiter":"Next"}</button></div>{editing!==undefined&&<EmployeeForm employee={editing} onClose={()=>setEditing(undefined)} token={token} isAdmin={isAdmin}/>} {details&&<Details employee={details} onClose={()=>setDetails(null)} isAdmin={isAdmin}/>} {admin&&<AdminDialog employee={admin} onClose={()=>setAdmin(null)} token={token}/>} {deactivate&&<div className="modal modal-open"><div className="modal-box"><h2 className="text-xl font-bold">{de?"Mitarbeiter deaktivieren":"Deactivate employee"}</h2>{deactivate.linkedUser?.isActive&&<div className="alert alert-warning mt-3">{de?"Das Systemkonto bleibt aktiv.":"The system account will remain active."}</div>}<div className="modal-action"><button className="btn" onClick={()=>setDeactivate(null)}>{de?"Abbrechen":"Cancel"}</button><button className="btn btn-error" onClick={()=>doDeactivate.mutate(deactivate.id)}>{de?"Deaktivierung bestätigen":"Confirm deactivation"}</button></div></div></div>}</section>}
+export default function EmployeesPage(){const {auth}=useRouteContext({from:"/admin"});return <EmployeesPageView token={auth.getAccessToken}/>}

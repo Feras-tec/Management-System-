@@ -1,4 +1,6 @@
 import { useTranslation } from "../../../../i18n";
+import { useAppPreferences } from "../../../../context";
+import { formatEurMinor } from "../../../../utils/currency";
 
 import type { SalesSummaryProps } from "./SalesSummary.types";
 
@@ -7,6 +9,7 @@ export default function SalesSummary({
   totalRevenue,
 }: SalesSummaryProps) {
   const { t } = useTranslation();
+  const { language } = useAppPreferences();
 
   return (
     <div className="card border border-base-300 bg-base-100 shadow-sm">
@@ -26,7 +29,7 @@ export default function SalesSummary({
             <div className="stat-title">{t.dashboard.totalRevenue}</div>
 
             <div className="stat-value text-secondary">
-              ${totalRevenue.toLocaleString()}
+              {formatEurMinor(Math.round(totalRevenue * 100), language)}
             </div>
           </div>
         </div>

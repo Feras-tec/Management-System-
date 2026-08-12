@@ -1,0 +1,15 @@
+import { z } from "zod";
+export const vehicleTypeSchema = z.enum(["SEDAN", "SUV", "HATCHBACK", "VAN", "COUPE", "WAGON", "OTHER"]);
+export const bookingStatusSchema = z.enum(["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"]);
+const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const email = z.email().max(254).transform((value) => value.trim().toLowerCase());
+const phone = z.string().trim().min(6).max(30);
+export const availabilityQuerySchema = z.strictObject({ serviceId: z.string().min(1).optional(), serviceSlug: z.string().min(1).optional(), date }).refine(v => Boolean(v.serviceId) !== Boolean(v.serviceSlug));
+export const createBookingSchema = z.strictObject({ serviceId: z.string().min(1).optional(), serviceSlug: z.string().min(1).optional(), carType: vehicleTypeSchema, date, time, firstName: z.string().trim().min(2).max(80), lastName: z.string().trim().min(2).max(80), email, phone, notes: z.string().trim().max(1000).optional() }).refine(v => Boolean(v.serviceId) !== Boolean(v.serviceSlug));
+export const lookupBookingSchema = z.strictObject({ bookingNumber: z.string().trim().min(8).max(32).transform(v=>v.toUpperCase()), email });
+export const bookingIdParamsSchema = z.strictObject({ bookingId: z.string().min(1).max(64) });
+export const customerIdParamsSchema = z.strictObject({ customerId: z.string().min(1).max(64) });
+export const statusUpdateSchema = z.strictObject({ status: bookingStatusSchema });
+export const bookingListQuerySchema = z.strictObject({ page: z.coerce.number().int().positive().default(1), limit: z.coerce.number().int().min(1).max(100).default(20), search: z.string().trim().max(100).optional(), status: bookingStatusSchema.optional(), serviceId: z.string().optional(), dateFrom: date.optional(), dateTo: date.optional(), sort: z.enum(["startsAt", "createdAt"]).default("startsAt"), order: z.enum(["asc", "desc"]).default("asc") });
+export const customerListQuerySchema = z.strictObject({ page: z.coerce.number().int().positive().default(1), limit: z.coerce.number().int().min(1).max(100).default(20), search: z.string().trim().max(100).optional() });
