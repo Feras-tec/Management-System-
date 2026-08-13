@@ -110,7 +110,7 @@ export function SettingsForm({
   return (
     <section className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="break-words text-3xl font-bold sm:text-4xl">
+        <h1 className="wrap-break-word text-3xl font-bold sm:text-4xl">
           {de ? "Geschäftseinstellungen" : "Business settings"}
         </h1>
         <p className="opacity-65">
