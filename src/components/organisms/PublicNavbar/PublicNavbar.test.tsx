@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
+
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
@@ -9,14 +10,25 @@ import { AppPreferencesProvider } from "../../../context";
 import Navbar from "../Navbar/Navbar";
 import PublicNavbar from "./PublicNavbar";
 
-const clerkState = vi.hoisted(() => ({ signedIn: false }));
+const clerkState = vi.hoisted(() => ({
+  signedIn: false,
+}));
 
 vi.mock("@clerk/clerk-react", () => ({
+  ClerkProvider: ({ children }: { children: ReactNode }) => children,
+
   SignedIn: ({ children }: { children: ReactNode }) =>
     clerkState.signedIn ? children : null,
+
   SignedOut: ({ children }: { children: ReactNode }) =>
     clerkState.signedIn ? null : children,
-  UserButton: () => <button aria-label="User account">User</button>,
+
+  UserButton: () => (
+    <button type="button" aria-label="User account">
+      User
+    </button>
+  ),
+
   SignOutButton: ({ children }: { children: ReactNode }) => children,
 }));
 
@@ -33,6 +45,7 @@ vi.mock("@tanstack/react-router", () => ({
     [key: string]: unknown;
   }) => {
     void activeProps;
+
     return (
       <a href={to} {...props}>
         {children}
@@ -43,6 +56,7 @@ vi.mock("@tanstack/react-router", () => ({
 
 function renderNavbar(language: "de" | "en") {
   localStorage.setItem("language", language);
+
   return render(
     <AppPreferencesProvider>
       <PublicNavbar />
@@ -55,6 +69,7 @@ describe("PublicNavbar authentication controls", () => {
     localStorage.clear();
     clerkState.signedIn = false;
   });
+
   afterEach(() => {
     cleanup();
     localStorage.clear();
@@ -62,20 +77,37 @@ describe("PublicNavbar authentication controls", () => {
 
   it("shows localized sign-in controls and no user or sign-out when signed out", async () => {
     renderNavbar("en");
+
     const desktop = screen.getByTestId("desktop-auth-controls");
+
     expect(
-      within(desktop).getByRole("link", { name: "Sign In" }),
+      await within(desktop).findByRole("link", {
+        name: "Sign In",
+      }),
     ).toHaveAttribute("href", "/sign-in");
+
     expect(
-      within(desktop).queryByRole("button", { name: "User account" }),
-    ).not.toBeInTheDocument();
-    expect(
-      within(desktop).queryByRole("button", { name: "Sign Out" }),
+      within(desktop).queryByRole("button", {
+        name: "User account",
+      }),
     ).not.toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Open menu" }));
     expect(
-      within(screen.getByTestId("mobile-auth-controls")).getByRole("link", {
+      within(desktop).queryByRole("button", {
+        name: "Sign Out",
+      }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Open menu",
+      }),
+    );
+
+    const mobile = screen.getByTestId("mobile-auth-controls");
+
+    expect(
+      await within(mobile).findByRole("link", {
         name: "Sign In",
       }),
     ).toHaveAttribute("href", "/sign-in");
@@ -83,44 +115,80 @@ describe("PublicNavbar authentication controls", () => {
 
   it("shows user and localized sign-out controls but no sign-in when signed in", async () => {
     clerkState.signedIn = true;
+
     renderNavbar("de");
+
     const desktop = screen.getByTestId("desktop-auth-controls");
+
     expect(
-      within(desktop).queryByRole("link", { name: "Anmelden" }),
-    ).not.toBeInTheDocument();
-    expect(
-      within(desktop).getByRole("button", { name: "User account" }),
-    ).toBeVisible();
-    expect(
-      within(desktop).getByRole("button", { name: "Abmelden" }),
+      await within(desktop).findByRole("button", {
+        name: "User account",
+      }),
     ).toBeVisible();
 
-    await userEvent.click(screen.getByRole("button", { name: "Menü öffnen" }));
+    expect(
+      within(desktop).queryByRole("link", {
+        name: "Anmelden",
+      }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      within(desktop).getByRole("button", {
+        name: "Abmelden",
+      }),
+    ).toBeVisible();
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Menü öffnen",
+      }),
+    );
+
     const mobile = screen.getByTestId("mobile-auth-controls");
+
     expect(
-      within(mobile).getByRole("button", { name: "User account" }),
+      await within(mobile).findByRole("button", {
+        name: "User account",
+      }),
     ).toBeInTheDocument();
+
     expect(
-      within(mobile).getByRole("button", { name: "Abmelden" }),
+      within(mobile).getByRole("button", {
+        name: "Abmelden",
+      }),
     ).toBeInTheDocument();
+
+    expect(
+      within(mobile).queryByRole("link", {
+        name: "Anmelden",
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("toggles language directly without a dropdown", async () => {
     renderNavbar("de");
+
     const switches = screen.getAllByRole("button", {
       name: "Switch to English",
     });
+
     expect(switches).toHaveLength(2);
+
     await userEvent.click(switches[0]);
+
     expect(
-      screen.getAllByRole("button", { name: "Auf Deutsch wechseln" }),
+      screen.getAllByRole("button", {
+        name: "Auf Deutsch wechseln",
+      }),
     ).toHaveLength(2);
+
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   });
 
   it("keeps an explicit localized sign-out control in the authenticated admin topbar", () => {
     clerkState.signedIn = true;
     localStorage.setItem("language", "en");
+
     render(
       <AppPreferencesProvider>
         <Navbar />
@@ -128,11 +196,21 @@ describe("PublicNavbar authentication controls", () => {
     );
 
     expect(
-      screen.getAllByRole("button", { name: "User account" }),
+      screen.getAllByRole("button", {
+        name: "User account",
+      }),
     ).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: "Sign Out" })).toHaveLength(2);
+
     expect(
-      screen.queryByRole("link", { name: "Sign In" }),
+      screen.getAllByRole("button", {
+        name: "Sign Out",
+      }),
+    ).toHaveLength(2);
+
+    expect(
+      screen.queryByRole("link", {
+        name: "Sign In",
+      }),
     ).not.toBeInTheDocument();
   });
 });

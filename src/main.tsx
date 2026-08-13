@@ -1,79 +1,44 @@
-import { StrictMode, useEffect, useMemo } from "react";
+import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
-
-import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { RouterProvider } from "@tanstack/react-router";
 
 import { router } from "./app/router";
-
 import { QueryProvider, ConfirmDialogProvider } from "./providers";
-
 import { AppPreferencesProvider } from "./context";
-
 import ToastProvider from "./providers/ToastProvider";
-
 import "./index.css";
 
-import { createClerkAccessTokenProvider } from "./auth/clerkToken";
+const ClerkApplication = lazy(() => import("./auth/ClerkApplication"));
 
-const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const publicAuth = {
+  isSignedIn: false,
+  getAccessToken: async () => null,
+};
 
-if (!publishableKey) {
-  throw new Error(
-    "Missing VITE_CLERK_PUBLISHABLE_KEY. Add it to your local .env file before starting the application.",
-  );
-}
+function Application() {
+  const needsClerk = location.pathname === "/sign-in" || location.pathname.startsWith("/admin");
 
-function ClerkRouter() {
-  const { isLoaded, isSignedIn, getToken } = useAuth();
-
-  const getAccessToken = useMemo(
-    () => createClerkAccessTokenProvider(getToken),
-    [getToken],
-  );
-
-  useEffect(() => {
-    if (isLoaded) {
-      void router.invalidate();
-    }
-  }, [isLoaded, isSignedIn]);
-
-  if (!isLoaded) {
+  if (needsClerk) {
     return (
-      <div
-        className="flex min-h-screen items-center justify-center bg-base-200"
-        role="status"
-        aria-label="Loading authentication"
-      >
-        <span className="loading loading-spinner loading-lg" />
-      </div>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-base-200" role="status" aria-label="Loading authentication"><span className="loading loading-spinner loading-lg" /></div>}>
+        <ClerkApplication />
+      </Suspense>
     );
   }
 
-  return (
-    <RouterProvider
-      router={router}
-      context={{
-        auth: {
-          isSignedIn: isSignedIn === true,
-          getAccessToken,
-        },
-      }}
-    />
-  );
+  return <RouterProvider router={router} context={{ auth: publicAuth }} />;
 }
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ClerkProvider publishableKey={publishableKey} afterSignOutUrl="/">
-      <AppPreferencesProvider>
-        <QueryProvider>
-          <ToastProvider>
-            <ConfirmDialogProvider>
-              <ClerkRouter />
-            </ConfirmDialogProvider>
-          </ToastProvider>
-        </QueryProvider>
-      </AppPreferencesProvider>
-    </ClerkProvider>
+    <AppPreferencesProvider>
+      <QueryProvider>
+        <ToastProvider>
+          <ConfirmDialogProvider>
+            <Application />
+          </ConfirmDialogProvider>
+        </ToastProvider>
+      </QueryProvider>
+    </AppPreferencesProvider>
   </StrictMode>,
 );

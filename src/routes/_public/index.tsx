@@ -103,7 +103,10 @@ function PublicHomePage() {
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <motion.img
-                src="/images/services/autocare-hero.webp"
+                src="/images/services/autocare-hero-1920.webp"
+                width={1920}
+                height={1200}
+                fetchPriority="high"
                 alt={
                   de
                     ? "Premium Fahrzeugpflege in einer modernen Werkstatt"
