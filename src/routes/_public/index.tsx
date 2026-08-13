@@ -103,9 +103,11 @@ function PublicHomePage() {
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <motion.img
-                src="/images/services/autocare-hero-1920.webp"
-                width={1920}
-                height={1200}
+                src="/images/services/autocare-hero-1280.webp"
+                srcSet="/images/services/autocare-hero-640.webp 640w, /images/services/autocare-hero-1280.webp 1280w, /images/services/autocare-hero-1920.webp 1920w"
+                sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1023px) calc(100vw - 3rem), 592px"
+                width={1280}
+                height={800}
                 fetchPriority="high"
                 alt={
                   de
@@ -161,6 +163,10 @@ function PublicHomePage() {
                           src={getServiceImage(s.slug, s.imageUrl) ?? undefined}
                           alt={de ? s.nameDe : s.nameEn}
                           className="h-44 w-full object-cover"
+                          width={840}
+                          height={561}
+                          loading="lazy"
+                          decoding="async"
                           onError={(event) => {
                             event.currentTarget.src =
                               "/brand/autocare-logo.svg";

@@ -1,7 +1,7 @@
 export const serviceImageMap = {
   "car-detailing": "/images/services/car-detailing.jpg",
   "interior-cleaning": "/images/services/interior-cleaning.jpg",
-  "car-wrapping": "/images/services/car-wrapping.jpg",
+  "car-wrapping": "/images/services/car-wrapping.webp",
   "window-tinting": "/images/services/window-tinting.jpg",
   "underbody-protection": "/images/services/underbody-protection.webp",
   "rust-protection": "/images/services/rust-protection.webp",
