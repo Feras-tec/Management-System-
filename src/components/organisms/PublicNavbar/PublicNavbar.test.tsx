@@ -4,6 +4,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
+import { ClerkProvider } from "@clerk/clerk-react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppPreferencesProvider } from "../../../context";
@@ -14,23 +15,48 @@ const clerkState = vi.hoisted(() => ({
   signedIn: false,
 }));
 
-vi.mock("@clerk/clerk-react", () => ({
-  ClerkProvider: ({ children }: { children: ReactNode }) => children,
+vi.mock("@clerk/clerk-react", async () => {
+  const { createContext, createElement, useContext } = await import("react");
+  const ClerkContext = createContext(false);
 
-  SignedIn: ({ children }: { children: ReactNode }) =>
-    clerkState.signedIn ? children : null,
+  const useRequireProvider = () => {
+    if (!useContext(ClerkContext)) {
+      throw new Error("Clerk control rendered outside ClerkProvider");
+    }
+  };
 
-  SignedOut: ({ children }: { children: ReactNode }) =>
-    clerkState.signedIn ? null : children,
+  return {
+    ClerkProvider: ({ children }: { children: ReactNode }) =>
+      createElement(ClerkContext.Provider, { value: true }, children),
 
-  UserButton: () => (
-    <button type="button" aria-label="User account">
-      User
-    </button>
-  ),
+    SignedIn: ({ children }: { children: ReactNode }) => {
+      useRequireProvider();
+      return clerkState.signedIn ? children : null;
+    },
 
-  SignOutButton: ({ children }: { children: ReactNode }) => children,
-}));
+    SignedOut: ({ children }: { children: ReactNode }) => {
+      useRequireProvider();
+      return clerkState.signedIn ? null : children;
+    },
+
+    UserButton: () => {
+      useRequireProvider();
+      return createElement("button", { type: "button", "aria-label": "User account" }, "User");
+    },
+
+    SignOutButton: ({ children }: { children: ReactNode }) => {
+      useRequireProvider();
+      return children;
+    },
+  };
+});
+
+
+const TestClerkProvider = ClerkProvider as unknown as ({
+  children,
+}: {
+  children: ReactNode;
+}) => ReactNode;
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({
@@ -59,7 +85,9 @@ function renderNavbar(language: "de" | "en") {
 
   return render(
     <AppPreferencesProvider>
-      <PublicNavbar />
+      <TestClerkProvider>
+        <PublicNavbar />
+      </TestClerkProvider>
     </AppPreferencesProvider>,
   );
 }
@@ -191,7 +219,9 @@ describe("PublicNavbar authentication controls", () => {
 
     render(
       <AppPreferencesProvider>
-        <Navbar />
+        <TestClerkProvider>
+          <Navbar />
+        </TestClerkProvider>
       </AppPreferencesProvider>,
     );
 

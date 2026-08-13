@@ -24,15 +24,29 @@ function ClerkRouter() {
     if (isLoaded) void router.invalidate();
   }, [isLoaded, isSignedIn]);
 
-  if (!isLoaded) {
+  const requiresResolvedAuth =
+    location.pathname === "/sign-in" || location.pathname.startsWith("/admin");
+
+  if (!isLoaded && requiresResolvedAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-base-200" role="status" aria-label="Loading authentication">
+      <div
+        className="flex min-h-screen items-center justify-center bg-base-200"
+        role="status"
+        aria-label="Loading authentication"
+      >
         <span className="loading loading-spinner loading-lg" />
       </div>
     );
   }
 
-  return <RouterProvider router={router} context={{ auth: { isSignedIn: isSignedIn === true, getAccessToken } }} />;
+  return (
+    <RouterProvider
+      router={router}
+      context={{
+        auth: { isSignedIn: isSignedIn === true, getAccessToken },
+      }}
+    />
+  );
 }
 
 export default function ClerkApplication() {
