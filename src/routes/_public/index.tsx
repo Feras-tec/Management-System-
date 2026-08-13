@@ -12,7 +12,11 @@ import {
 import { Reveal } from "../../components/motion/Reveal";
 import { useAppPreferences } from "../../context";
 import { usePublicServices } from "../../features/services/api/queries";
-import { getServiceImage } from "../../features/services/serviceImage";
+import {
+  getServiceImage,
+  getServicePreviewImage,
+  getServicePreviewImageSrcSet,
+} from "../../features/services/serviceImage";
 import { formatEurMinor } from "../../utils/currency";
 import { usePageMeta } from "../../utils/usePageMeta";
 export const Route = createFileRoute("/_public/")({
@@ -103,8 +107,8 @@ function PublicHomePage() {
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <motion.img
-                src="/images/services/autocare-hero-1280.webp"
-                srcSet="/images/services/autocare-hero-640.webp 640w, /images/services/autocare-hero-1280.webp 1280w, /images/services/autocare-hero-1920.webp 1920w"
+                src="/images/services/autocare-hero-640.webp"
+                srcSet="/images/services/autocare-hero-640.webp 640w, /images/services/autocare-hero-960.webp 960w, /images/services/autocare-hero-1280.webp 1280w, /images/services/autocare-hero-1920.webp 1920w"
                 sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1023px) calc(100vw - 3rem), 592px"
                 width={1280}
                 height={800}
@@ -160,7 +164,12 @@ function PublicHomePage() {
                     {getServiceImage(s.slug, s.imageUrl) ? (
                       <figure>
                         <img
-                          src={getServiceImage(s.slug, s.imageUrl) ?? undefined}
+                          src={getServicePreviewImage(s.slug, s.imageUrl) ?? undefined}
+                          srcSet={getServicePreviewImageSrcSet(
+                            s.slug,
+                            s.imageUrl,
+                          )}
+                          sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1023px) calc((100vw - 6rem) / 3), 395px"
                           alt={de ? s.nameDe : s.nameEn}
                           className="h-44 w-full object-cover"
                           width={840}
