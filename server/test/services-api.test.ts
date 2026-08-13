@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { buildApp } from "../src/app.js";
+import { buildApp } from "../src/build-app.js";
 import type { ServerEnvironment } from "../src/config/env.js";
 import type { AuthProvider } from "../src/shared/auth/auth-provider.js";
 import type { ErrorResponse } from "../src/shared/errors/error-response.js";

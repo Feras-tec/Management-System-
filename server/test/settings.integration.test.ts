@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { buildApp } from "../src/app.js";
+import { buildApp } from "../src/build-app.js";
 import type { ServerEnvironment } from "../src/config/env.js";
 import { PrismaDataStore } from "../src/database/prisma.js";
 import type { AuthProvider } from "../src/shared/auth/auth-provider.js";
