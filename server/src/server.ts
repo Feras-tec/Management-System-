@@ -1,5 +1,10 @@
+import Fastify from "fastify";
+
 import { buildApp } from "./build-app.js";
 import { parseEnvironment } from "./config/env.js";
+
+void Fastify;
+
 async function startServer() {
   const environment = parseEnvironment();
   const app = await buildApp({ environment });
