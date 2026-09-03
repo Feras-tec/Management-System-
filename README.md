@@ -2,6 +2,8 @@
 
 React and Fastify business-management application for automotive services. It includes a public service catalogue and booking flow plus an authenticated administration area for bookings, customers, products and inventory, sales and payments, employees, reports, and business settings.
 
+[View Live Demo](https://management-system-sand-nu.vercel.app/)
+
 ## Architecture
 
 - Frontend: React 19, TypeScript, Vite, TanStack Router/Query/Form, Zod, Clerk, Tailwind/DaisyUI, Framer Motion.
@@ -33,14 +35,14 @@ Backend variables:
 
 ## Install and database setup
 
-```bash
+~~~bash
 npm install
 cd server
 npm install
 npm run prisma:generate
 npm run prisma:migrate:deploy
 npm run db:seed
-```
+~~~
 
 Use a dedicated database for tests through `TEST_DATABASE_URL`. Do not point tests at production data. Admin bootstrap is explicit: supply `BOOTSTRAP_ADMIN_CLERK_USER_ID` only for the intended initial Clerk user when running the seed.
 
@@ -48,28 +50,28 @@ Use a dedicated database for tests through `TEST_DATABASE_URL`. Do not point tes
 
 In separate terminals:
 
-```bash
+~~~bash
 npm run dev
-```
+~~~
 
-```bash
+~~~bash
 cd server
 npm run dev
-```
+~~~
 
 ## Verification
 
 Frontend:
 
-```bash
+~~~bash
 npm test
 npm run lint
 npm run build
-```
+~~~
 
 Backend:
 
-```bash
+~~~bash
 cd server
 npm test
 npm run lint
@@ -77,17 +79,17 @@ npm run typecheck
 npm run build
 npm run prisma:validate
 npm run prisma:migrate:status
-```
+~~~
 
 ## Production startup
 
 Build the frontend and serve `dist/` from a static host with SPA fallback. Build and start the API with:
 
-```bash
+~~~bash
 cd server
 npm run build
 npm start
-```
+~~~
 
 Apply committed migrations with `npm run prisma:migrate:deploy` before starting a production release. Do not use `prisma db push` for releases.
 
