@@ -73,6 +73,12 @@ enum InventoryMovementType {
   CANCELLATION
 }
 
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum DayOfWeek {
   MONDAY
   TUESDAY
@@ -108,14 +114,16 @@ model Business {
   payments Payment[]
   employees Employee[]
   openingHours BusinessOpeningHour[]
+  contactMessages ContactMessage[]
+  reviews Review[]
 }
 
 model BusinessOpeningHour {
   businessId String
   dayOfWeek  DayOfWeek
   isOpen     Boolean @default(false)
-  openTime   String?
-  closeTime  String?
+  openTime   String? @db.VarChar(5)
+  closeTime  String? @db.VarChar(5)
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -379,4 +387,35 @@ model Employee {
  @@index([businessId,status])
  @@index([businessId,position])
  @@index([businessId,lastName,firstName])
+}
+
+model ContactMessage {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String   @db.VarChar(120)
+  email      String   @db.VarChar(254)
+  phone      String?  @db.VarChar(40)
+  subject    String   @db.VarChar(160)
+  message    String   @db.VarChar(4000)
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([businessId, createdAt])
+}
+
+model Review {
+  id           String       @id @default(cuid())
+  businessId   String
+  customerName String       @db.VarChar(80)
+  email        String?      @db.VarChar(254)
+  rating       Int
+  message      String       @db.VarChar(2000)
+  status       ReviewStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([businessId, status, createdAt])
 }

@@ -6,7 +6,7 @@ import type { DataStore } from "./database/data-store.js";
 import { PrismaDataStore } from "./database/prisma.js";
 import type { AuthProvider } from "./shared/auth/auth-provider.js";
 import { registerClerkAuthentication } from "./plugins/auth.plugin.js";
-import { registerErrorHandling } from "./plugins/error-handler.plugin.js";
+import { registerErrorHandling, serializeRequestForLog } from "./plugins/error-handler.plugin.js";
 import { registerHealthRoute } from "./modules/health/health.route.js";
 import { registerIdentityRoutes } from "./modules/identity/identity.route.js";
 import { registerAdminServiceRoutes, registerPublicServiceRoutes } from "./modules/services/service.route.js";
@@ -26,6 +26,13 @@ import { registerReportRoutes } from "./modules/reports/report.route.js";
 import type { ReportStore } from "./modules/reports/report.types.js";
 import { PrismaSettingsStore } from "./modules/settings/prisma-settings.store.js";
 import { registerSettingsRoutes } from "./modules/settings/settings.route.js";
+import type { AdminContactStore, ContactStore } from "./modules/contact/contact.types.js";
+import { registerAdminContactRoutes } from "./modules/contact/admin-contact.route.js";
+import { PrismaContactStore } from "./modules/contact/prisma-contact.store.js";
+import { registerPublicContactRoutes } from "./modules/contact/contact.route.js";
+import type { ReviewStore } from "./modules/reviews/review.types.js";
+import { PrismaReviewStore } from "./modules/reviews/prisma-review.store.js";
+import { registerAdminReviewRoutes, registerPublicReviewRoutes } from "./modules/reviews/review.route.js";
 
 export interface BuildAppOptions {
   environment: ServerEnvironment;
@@ -34,6 +41,9 @@ export interface BuildAppOptions {
   bookingStore?: BookingStore;
   productStore?: ProductStore;
   reportStore?: ReportStore;
+  contactStore?: ContactStore;
+  adminContactStore?: AdminContactStore;
+  reviewStore?: ReviewStore;
   logger?: boolean;
 }
 
@@ -47,12 +57,19 @@ export async function buildApp(options: BuildAppOptions) {
   const employeeStore = dataStore instanceof PrismaDataStore ? new PrismaEmployeeStore(dataStore.client) : undefined;
   const reportStore = options.reportStore ?? (dataStore instanceof PrismaDataStore ? new PrismaReportStore(dataStore.client) : undefined);
   const settingsStore = dataStore instanceof PrismaDataStore ? new PrismaSettingsStore(dataStore.client) : undefined;
+  const prismaContactStore = dataStore instanceof PrismaDataStore ? new PrismaContactStore(dataStore.client) : undefined;
+  const contactStore = options.contactStore ?? prismaContactStore;
+  const adminContactStore = options.adminContactStore ?? prismaContactStore;
+  const reviewStore = options.reviewStore ?? (dataStore instanceof PrismaDataStore ? new PrismaReviewStore(dataStore.client) : undefined);
   const app = Fastify({
+    trustProxy: false,
+    requestIdHeader: false,
     logger:
       options.logger === false
         ? false
         : {
             level: options.environment.LOG_LEVEL,
+            serializers: { req: serializeRequestForLog },
             redact: {
               paths: [
                 "req.headers.authorization",
@@ -80,6 +97,8 @@ export async function buildApp(options: BuildAppOptions) {
   registerHealthRoute(app);
   registerPublicServiceRoutes(app, dataStore);
   if (bookingStore) registerPublicBookingRoutes(app, bookingStore);
+  if (contactStore) registerPublicContactRoutes(app, contactStore);
+  if (reviewStore) registerPublicReviewRoutes(app, reviewStore);
 
   if (options.authProvider) {
     registerIdentityRoutes(app, options.authProvider, dataStore);
@@ -89,6 +108,8 @@ export async function buildApp(options: BuildAppOptions) {
     if (employeeStore) registerEmployeeRoutes(app, options.authProvider, dataStore, employeeStore);
     if (reportStore) registerReportRoutes(app, options.authProvider, dataStore, reportStore);
     if (settingsStore) registerSettingsRoutes(app, options.authProvider, dataStore, settingsStore);
+    if (reviewStore) registerAdminReviewRoutes(app, reviewStore, options.authProvider, dataStore);
+    if (adminContactStore) registerAdminContactRoutes(app, adminContactStore, options.authProvider, dataStore);
     if (bookingStore) {
       registerAdminBookingRoutes(app, options.authProvider, dataStore, bookingStore);
       registerCustomerRoutes(app, options.authProvider, dataStore, bookingStore);
@@ -100,6 +121,8 @@ export async function buildApp(options: BuildAppOptions) {
         options.environment,
       );
 
+      if (reviewStore) registerAdminReviewRoutes(protectedRoutes, reviewStore, authProvider, dataStore);
+      if (adminContactStore) registerAdminContactRoutes(protectedRoutes, adminContactStore, authProvider, dataStore);
       registerIdentityRoutes(protectedRoutes, authProvider, dataStore);
       registerAdminServiceRoutes(protectedRoutes, authProvider, dataStore);
       if (productStore) registerProductRoutes(protectedRoutes, authProvider, dataStore, productStore);

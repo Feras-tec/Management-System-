@@ -1,7 +1,32 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 
 import { AppError } from "../shared/errors/app-error.js";
 import { createErrorResponse } from "../shared/errors/error-response.js";
+
+// Do not log the raw URL, query, body, or headers. Request IDs and the
+// registered route template are sufficient to correlate diagnostics.
+export function serializeRequestForLog(request: FastifyRequest) {
+  return { method: request.method, route: request.routeOptions?.url };
+}
+
+const operationalCodes = new Set([
+  "ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "EPIPE", "ENOTFOUND",
+  "FST_ERR_CTP_INVALID_JSON_BODY",
+]);
+
+function unexpectedErrorFields(error: unknown) {
+  const code = typeof error === "object" && error !== null && "code" in error
+    ? error.code : undefined;
+  if (typeof code === "string" && /^P\d{4}$/.test(code)) {
+    return { kind: "database", code };
+  }
+  if (typeof code === "string" && operationalCodes.has(code)) {
+    return { kind: "operational", code };
+  }
+  if (error instanceof TypeError) return { kind: "type-error" };
+  if (error instanceof RangeError) return { kind: "range-error" };
+  return { kind: "unexpected" };
+}
 
 export function registerErrorHandling(app: FastifyInstance) {
   app.setNotFoundHandler((request, reply) => {
@@ -52,6 +77,17 @@ export function registerErrorHandling(app: FastifyInstance) {
     }
 
     if (typeof error === "object" && error !== null && "code" in error) {
+      if (error.code === "FST_ERR_CTP_BODY_TOO_LARGE") {
+        return reply
+          .code(413)
+          .send(
+            createErrorResponse(
+              "PAYLOAD_TOO_LARGE",
+              "The request body is too large.",
+              request.id,
+            ),
+          );
+      }
       if (error.code === "P2002") {
         return reply
           .code(409)
@@ -72,7 +108,11 @@ export function registerErrorHandling(app: FastifyInstance) {
       }
     }
 
-    request.log.error({ err: error }, "Unhandled request error");
+    request.log.error({
+      route: request.routeOptions.url,
+      method: request.method,
+      failure: unexpectedErrorFields(error),
+    }, "Unhandled request error");
 
     return reply
       .code(500)
