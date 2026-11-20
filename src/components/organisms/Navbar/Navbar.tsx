@@ -4,6 +4,7 @@ import { SignOutButton, UserButton } from "@clerk/clerk-react";
 
 import { useAppPreferences } from "../../../context/AppPreferencesContext";
 import { useTranslation } from "../../../i18n";
+import { BrandLogo } from "../../atoms/BrandLogo/BrandLogo";
 import { LanguageToggle } from "../../molecules/LanguageToggle";
 
 export default function Navbar() {
@@ -15,14 +16,10 @@ export default function Navbar() {
       <div className="flex-1">
         <Link
           to="/"
-          className="flex items-center gap-2 text-xl font-bold text-primary transition-transform duration-200 hover:scale-105"
+          className="inline-flex items-center transition-transform duration-200 hover:scale-[1.02]"
+          aria-label="AutoCare home"
         >
-          <img
-            src="/brand/autocare-logo.svg"
-            alt="AutoCare"
-            className="size-9"
-          />
-          <span>AutoCare</span>
+          <BrandLogo className="size-16 sm:size-18" />
         </Link>
       </div>
 
@@ -57,7 +54,7 @@ export default function Navbar() {
         </button>
         <UserButton />
         <SignOutButton redirectUrl="/">
-          <button type="button" className="btn btn-ghost btn-sm rounded-xl">
+          <button type="button" className="btn btn-ghost btn-sm hidden rounded-xl sm:inline-flex">
             {t.navbar.signOut}
           </button>
         </SignOutButton>

@@ -636,7 +636,7 @@ export function SalesPageView({
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap justify-between gap-3">
-        <h1 className="text-4xl font-bold">{de ? "Verkäufe" : "Sales"}</h1>
+        <h1 className="break-words text-2xl font-bold sm:text-4xl">{de ? "Verkäufe" : "Sales"}</h1>
         <button className="btn btn-primary" onClick={() => setEditing(null)}>
           {de ? "Verkauf erstellen" : "Create sale"}
         </button>
@@ -687,7 +687,7 @@ export function SalesPageView({
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="table table-zebra">
+        <table className="table table-zebra min-w-[44rem]">
           <thead>
             <tr>
               <th>{de ? "Nummer" : "Number"}</th>

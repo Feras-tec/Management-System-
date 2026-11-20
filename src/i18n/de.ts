@@ -6,6 +6,8 @@ const de = {
     employees: "Mitarbeiter",
     products: "Produkte",
     customers: "Kunden",
+    reviews: "Bewertungen",
+    contactMessages: "Kontaktanfragen",
     sales: "Verkäufe",
     reports: "Berichte",
     settings: "Einstellungen",

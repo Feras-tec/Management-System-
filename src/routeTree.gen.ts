@@ -16,10 +16,12 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminSalesRouteImport } from './routes/admin/sales'
+import { Route as AdminReviewsRouteImport } from './routes/admin/reviews'
 import { Route as AdminReportsRouteImport } from './routes/admin/reports'
 import { Route as AdminProductsRouteImport } from './routes/admin/products'
 import { Route as AdminEmployeesRouteImport } from './routes/admin/employees'
 import { Route as AdminCustomersRouteImport } from './routes/admin/customers'
+import { Route as AdminContactMessagesRouteImport } from './routes/admin/contact-messages'
 import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
 import { Route as PublicMyBookingRouteImport } from './routes/_public/my-booking'
 import { Route as PublicImpressumRouteImport } from './routes/_public/impressum'
@@ -63,6 +65,11 @@ const AdminSalesRoute = AdminSalesRouteImport.update({
   path: '/sales',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminReviewsRoute = AdminReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminReportsRoute = AdminReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -81,6 +88,11 @@ const AdminEmployeesRoute = AdminEmployeesRouteImport.update({
 const AdminCustomersRoute = AdminCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminContactMessagesRoute = AdminContactMessagesRouteImport.update({
+  id: '/contact-messages',
+  path: '/contact-messages',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminBookingsRoute = AdminBookingsRouteImport.update({
@@ -134,10 +146,12 @@ export interface FileRoutesByFullPath {
   '/impressum': typeof PublicImpressumRoute
   '/my-booking': typeof PublicMyBookingRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/contact-messages': typeof AdminContactMessagesRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/employees': typeof AdminEmployeesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
   '/admin/sales': typeof AdminSalesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/': typeof AdminIndexRoute
@@ -152,10 +166,12 @@ export interface FileRoutesByTo {
   '/impressum': typeof PublicImpressumRoute
   '/my-booking': typeof PublicMyBookingRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/contact-messages': typeof AdminContactMessagesRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/employees': typeof AdminEmployeesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
   '/admin/sales': typeof AdminSalesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/': typeof PublicIndexRoute
@@ -174,10 +190,12 @@ export interface FileRoutesById {
   '/_public/impressum': typeof PublicImpressumRoute
   '/_public/my-booking': typeof PublicMyBookingRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/contact-messages': typeof AdminContactMessagesRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/employees': typeof AdminEmployeesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
   '/admin/sales': typeof AdminSalesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/_public/': typeof PublicIndexRoute
@@ -197,10 +215,12 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/my-booking'
     | '/admin/bookings'
+    | '/admin/contact-messages'
     | '/admin/customers'
     | '/admin/employees'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/reviews'
     | '/admin/sales'
     | '/admin/settings'
     | '/admin/'
@@ -215,10 +235,12 @@ export interface FileRouteTypes {
     | '/impressum'
     | '/my-booking'
     | '/admin/bookings'
+    | '/admin/contact-messages'
     | '/admin/customers'
     | '/admin/employees'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/reviews'
     | '/admin/sales'
     | '/admin/settings'
     | '/'
@@ -236,10 +258,12 @@ export interface FileRouteTypes {
     | '/_public/impressum'
     | '/_public/my-booking'
     | '/admin/bookings'
+    | '/admin/contact-messages'
     | '/admin/customers'
     | '/admin/employees'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/reviews'
     | '/admin/sales'
     | '/admin/settings'
     | '/_public/'
@@ -305,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSalesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/reviews': {
+      id: '/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminReviewsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/reports': {
       id: '/admin/reports'
       path: '/reports'
@@ -331,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/customers'
       fullPath: '/admin/customers'
       preLoaderRoute: typeof AdminCustomersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/contact-messages': {
+      id: '/admin/contact-messages'
+      path: '/contact-messages'
+      fullPath: '/admin/contact-messages'
+      preLoaderRoute: typeof AdminContactMessagesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/bookings': {
@@ -419,10 +457,12 @@ const PublicRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminContactMessagesRoute: typeof AdminContactMessagesRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminEmployeesRoute: typeof AdminEmployeesRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
+  AdminReviewsRoute: typeof AdminReviewsRoute
   AdminSalesRoute: typeof AdminSalesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -430,10 +470,12 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBookingsRoute: AdminBookingsRoute,
+  AdminContactMessagesRoute: AdminContactMessagesRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminEmployeesRoute: AdminEmployeesRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
+  AdminReviewsRoute: AdminReviewsRoute,
   AdminSalesRoute: AdminSalesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,

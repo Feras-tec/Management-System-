@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { CalendarCheck } from "lucide-react";
 import { useAppPreferences } from "../../../context";
+import { BrandLogo } from "../../atoms/BrandLogo/BrandLogo";
 export default function PublicFooter() {
   const { language } = useAppPreferences();
   const de = language === "de";
@@ -8,13 +9,8 @@ export default function PublicFooter() {
     <footer className="border-t border-base-300 bg-base-200/60">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-3 text-xl font-black">
-            <img
-              src="/brand/autocare-logo.svg"
-              alt="AutoCare"
-              className="size-10"
-            />
-            <span>AutoCare</span>
+          <div className="flex items-center">
+            <BrandLogo className="size-24" />
           </div>
           <p className="mt-4 max-w-sm text-sm leading-6 opacity-70">
             {de
@@ -50,7 +46,7 @@ export default function PublicFooter() {
             </Link>
             <Link
               to="/booking"
-              className="btn btn-primary btn-sm mt-2 w-fit gap-2"
+              className="btn btn-primary booking-cta btn-sm mt-2 w-fit gap-2"
             >
               <CalendarCheck size={17} />
               {de ? "Termin buchen" : "Book now"}

@@ -25,9 +25,9 @@ function ServicesPage() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <p className="font-semibold text-primary">AutoCare</p>
+      <p className="font-semibold text-[var(--brand-text)]">AutoCare</p>
 
-      <h1 className="mt-2 text-5xl font-black">
+      <h1 className="mt-2 break-words text-4xl font-black sm:text-5xl">
         {language === "de" ? "Leistungen" : "Services"}
       </h1>
 
@@ -112,7 +112,7 @@ function ServicesPage() {
                         height={192}
                         className="h-48 w-full object-cover transition duration-500 group-hover:scale-105"
                         onError={(event) => {
-                          event.currentTarget.src = "/brand/autocare-logo.svg";
+                          event.currentTarget.src = "/brand/autocare-symbol.svg";
                         }}
                       />
                     </figure>
@@ -148,7 +148,7 @@ function ServicesPage() {
 
                     <div className="card-actions justify-end">
                       <Link
-                        className="btn btn-primary btn-sm"
+                        className="btn btn-outline btn-primary btn-sm"
                         to="/services/$slug"
                         params={{
                           slug: service.slug,
@@ -158,7 +158,7 @@ function ServicesPage() {
                       </Link>
 
                       <Link
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-secondary booking-cta btn-sm"
                         to="/booking"
                         search={{
                           service: service.slug,

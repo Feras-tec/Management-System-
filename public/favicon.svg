@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img">
+  <title>AutoCare</title>
+  <circle cx="50" cy="50" r="50" fill="#c05621"/>
+  <g transform="translate(3.0 27.5) scale(0.93)"><path fill="#ffffff" d="M4 32 L4 26.5 C4 24.2 5.2 22.6 7.4 22 L15.5 20 C22.5 17.8 28.8 14.6 34.2 10.8 C38.2 8.4 42.6 7 47.2 7 L57.4 7 C60.4 7 62.8 8.2 64.8 10.4 L70.4 16.4 C72.9 19.2 76.4 21.2 80 21.8 L91.5 23.4 C95 24 97 26.6 97 30 L97 32 L84.5 32 A10.5 10.5 0 0 0 63.5 32 L33.5 32 A10.5 10.5 0 0 0 12.5 32 Z"/><circle fill="#ffffff" cx="23" cy="32" r="9"/><circle fill="#ffffff" cx="74" cy="32" r="9"/></g>
+</svg>

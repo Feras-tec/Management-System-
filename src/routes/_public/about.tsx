@@ -56,7 +56,7 @@ function AboutPage() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <Reveal>
-        <p className="font-semibold text-primary">AutoCare</p>
+        <p className="font-semibold text-[var(--brand-text)]">AutoCare</p>
         <h1 className="mt-3 text-4xl font-black sm:text-5xl">
           {de ? "Über AutoCare" : "About AutoCare"}
         </h1>
@@ -96,8 +96,8 @@ function AboutPage() {
       </Reveal>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2 sm:mt-14">
-        <Reveal className="flex h-full rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm transition-shadow duration-200 hover:-translate-y-1 hover:shadow-md sm:p-8">
-          <CheckCircle2 className="size-8 text-primary" aria-hidden="true" />
+        <Reveal className="flex h-full flex-col rounded-3xl border border-base-300 bg-base-100 p-6 shadow-sm transition-shadow duration-200 hover:-translate-y-1 hover:shadow-md sm:p-8">
+          <CheckCircle2 className="size-8 shrink-0 text-primary" aria-hidden="true" />
           <h2 className="mt-4 text-2xl font-black">
             {de ? "Unsere Werte" : "Our values"}
           </h2>
@@ -114,8 +114,8 @@ function AboutPage() {
           </ul>
         </Reveal>
 
-        <Reveal className="flex h-full rounded-3xl border border-primary/30 bg-primary/5 p-6 shadow-sm transition-shadow duration-200 hover:-translate-y-1 hover:shadow-md sm:p-8">
-          <CalendarCheck className="size-8 text-primary" aria-hidden="true" />
+        <Reveal className="flex h-full flex-col rounded-3xl border border-primary/30 bg-primary/5 p-6 shadow-sm transition-shadow duration-200 hover:-translate-y-1 hover:shadow-md sm:p-8">
+          <CalendarCheck className="size-8 shrink-0 text-primary" aria-hidden="true" />
           <h2 className="mt-4 text-2xl font-black">
             {de ? "Einfach planen" : "Plan with ease"}
           </h2>

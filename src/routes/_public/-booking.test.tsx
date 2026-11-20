@@ -8,6 +8,17 @@ import { AppPreferencesProvider } from "../../context";
 import { bookingApi } from "../../features/bookings/api";
 import { BookingPage, bookingCustomerSchema, isContactStepValid } from "./booking";
 
+it.each([["de", "Fahrzeugtyp", "Limousine"], ["en", "Vehicle type", "Sedan"]])(
+  "renders the %s vehicle label without changing its API value",
+  async (language, field, label) => {
+    localStorage.setItem("language", language);
+    const client = new QueryClient();
+    render(<AppPreferencesProvider><QueryClientProvider client={client}><BookingPage /></QueryClientProvider></AppPreferencesProvider>);
+    expect(await screen.findByRole("option", { name: label })).toHaveValue("SEDAN");
+    expect(screen.getByRole("combobox", { name: field })).toHaveValue("SEDAN");
+  },
+);
+
 vi.mock("framer-motion",async importOriginal=>({...await importOriginal<typeof import("framer-motion")>(),useReducedMotion:()=>true}));
 afterEach(cleanup);
 const service={id:"service-1",slug:"service-a",nameDe:"Testleistung",nameEn:"Test service",durationMinutes:60};

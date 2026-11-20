@@ -2,6 +2,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { bookingApi } from "./api";
 afterEach(()=>vi.unstubAllGlobals());
 describe("bookingApi",()=>{
+ it("reads the real Fastify rate-limit envelope for both public requests", async () => {
+   const rateLimited = () => Promise.resolve(new Response(JSON.stringify({
+     error: { code: "RATE_LIMITED", message: "Too many requests.", requestId: "req-test" },
+   }), { status: 429, headers: { "Retry-After": "300" } }));
+   vi.stubGlobal("fetch", rateLimited);
+   await expect(bookingApi.create({})).rejects.toThrow("RATE_LIMITED");
+   await expect(bookingApi.lookup({ bookingNumber: "BK-SYNTHETIC", email: "qa@example.test" })).rejects.toThrow("RATE_LIMITED");
+ });
  it("creates public bookings without an authorization header",async()=>{const fetchMock=vi.fn().mockResolvedValue(new Response(JSON.stringify({bookingNumber:"BK-TEST",status:"PENDING",startsAt:"2026-08-12T08:00:00.000Z",service:{nameDe:"Test",nameEn:"Test"}}),{status:201}));vi.stubGlobal("fetch",fetchMock);await bookingApi.create({serviceSlug:"test"});expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({method:"POST",headers:{"Content-Type":"application/json"}});expect((fetchMock.mock.calls[0]?.[1] as RequestInit).headers).not.toHaveProperty("Authorization")});
  it("uses the Clerk token for admin booking requests",async()=>{const fetchMock=vi.fn().mockResolvedValue(new Response(JSON.stringify({items:[],total:0,page:1,limit:50}),{status:200}));vi.stubGlobal("fetch",fetchMock);await bookingApi.list(async()=>"test-session-value","page=1");expect((fetchMock.mock.calls[0]?.[1] as RequestInit).headers).toMatchObject({Authorization:"Bearer test-session-value"})});
  it("exposes the backend conflict code",async()=>{vi.stubGlobal("fetch",vi.fn().mockResolvedValue(new Response(JSON.stringify({code:"BOOKING_SLOT_UNAVAILABLE"}),{status:409})));await expect(bookingApi.create({})).rejects.toThrow("BOOKING_SLOT_UNAVAILABLE")});

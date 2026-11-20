@@ -118,7 +118,7 @@ export default function ReportsPage() {
   return (
     <section className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-4xl font-bold">{de ? "Berichte" : "Reports"}</h1>
+        <h1 className="break-words text-2xl font-bold sm:text-4xl">{de ? "Berichte" : "Reports"}</h1>
         <p className="opacity-65">
           {de
             ? "PostgreSQL-Analysen in Geschäftszeit."
@@ -382,7 +382,7 @@ export default function ReportsPage() {
             <Section title={de ? "Leistungen" : "Services"}>
               {data.services.length ? (
                 <div className="overflow-x-auto">
-                  <table className="table table-sm">
+                  <table className="table table-sm min-w-[32rem]">
                     <thead>
                       <tr>
                         <th>{de ? "Leistung" : "Service"}</th>

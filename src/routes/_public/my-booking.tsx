@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { CalendarSearch, CarFront, Clock3, Search } from "lucide-react";
-import { bookingApi, bookingStatusLabel } from "../../features/bookings/api";
+import { bookingApi, bookingStatusLabel, vehicleTypeLabel } from "../../features/bookings/api";
 import { useAppPreferences } from "../../context";
 import { usePageMeta } from "../../utils/usePageMeta";
 export const Route = createFileRoute("/_public/my-booking")({
@@ -12,9 +12,11 @@ export const Route = createFileRoute("/_public/my-booking")({
 function MyBookingPage() {
   const { language } = useAppPreferences();
   const de = language === "de";
+  const reduced = useReducedMotion();
   const [number, setNumber] = useState("");
   const [email, setEmail] = useState("");
   const lookup = useMutation({ mutationFn: bookingApi.lookup });
+  const vehicleType = lookup.data?.vehicle?.type ?? lookup.data?.vehicleType;
   usePageMeta(
     de ? "Meine Buchung" : "My booking",
     de
@@ -27,7 +29,7 @@ function MyBookingPage() {
         className="mb-4 size-11 text-primary"
         aria-hidden="true"
       />
-      <h1 className="text-4xl font-bold">
+      <h1 className="text-3xl font-bold sm:text-4xl">
         {de ? "Meine Buchung" : "My booking"}
       </h1>
       <p className="mt-3 text-base-content/70">
@@ -36,7 +38,7 @@ function MyBookingPage() {
           : "Enter the details from your booking confirmation."}
       </p>
       <form
-        className="card mt-8 space-y-4 border border-base-300 bg-base-100 p-6 shadow-lg"
+        className="card mt-8 space-y-4 border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
         onSubmit={(e) => {
           e.preventDefault();
           lookup.mutate({ bookingNumber: number, email });
@@ -66,7 +68,7 @@ function MyBookingPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <button
-          className="btn btn-primary"
+          className="btn btn-primary w-full sm:w-auto"
           disabled={!number.trim() || !email.trim() || lookup.isPending}
         >
           {lookup.isPending ? (
@@ -82,15 +84,20 @@ function MyBookingPage() {
       </form>
       {lookup.isError && (
         <div className="alert alert-error mt-6" role="alert">
-          {de
-            ? "Buchung nicht gefunden. Bitte prüfen Sie Ihre Angaben."
-            : "Booking not found. Please check your details."}
+          {lookup.error.message === "RATE_LIMITED"
+            ? de
+              ? "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+              : "Too many lookup attempts. Please try again later."
+            : de
+              ? "Buchung nicht gefunden. Bitte prüfen Sie Ihre Angaben."
+              : "Booking not found. Please check your details."}
         </div>
       )}
       {lookup.data && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={reduced ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={reduced ? { duration: 0 } : undefined}
           className="card mt-8 border border-primary/20 bg-primary/5 shadow-xl"
         >
           <div className="card-body">
@@ -104,9 +111,9 @@ function MyBookingPage() {
                 aria-hidden="true"
               />
               {de ? lookup.data.service.nameDe : lookup.data.service.nameEn}
-              {(lookup.data.vehicle?.type ?? lookup.data.vehicleType) && (
+              {vehicleType && (
                 <span className="block pl-7 text-sm text-base-content/70">
-                  {lookup.data.vehicle?.type ?? lookup.data.vehicleType}
+                  {vehicleTypeLabel(vehicleType, language)}
                 </span>
               )}
             </p>

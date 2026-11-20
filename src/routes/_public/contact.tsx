@@ -3,6 +3,7 @@ import { Reveal } from "../../components/motion/Reveal";
 import { CalendarCheck, Clock3, Mail, MapPin, Phone } from "lucide-react";
 
 import { useAppPreferences } from "../../context";
+import { ContactForm } from "../../features/contact/ContactForm";
 import { DEMO_BUSINESS, formatDemoAddress } from "../../content/demoBusiness";
 import { usePageMeta } from "../../utils/usePageMeta";
 
@@ -101,8 +102,10 @@ function ContactPage() {
         </Reveal>
       </div>
 
+      <ContactForm language={language} />
+
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link to="/booking" className="btn btn-primary">
+        <Link to="/booking" className="btn btn-primary booking-cta">
           <CalendarCheck className="size-4" aria-hidden="true" />
           {de ? "Termin buchen" : "Book appointment"}
         </Link>

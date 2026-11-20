@@ -1,2 +1,59 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+:root {
+  --brand-accent: #c05621;
+  /* Small orange text needs a little more depth than the display accent to
+     stay at AA contrast on the tinted light surfaces. */
+  --brand-text: #b34f1e;
+  /* The public success text needs a darker green in light mode; the default
+     daisyUI success token is a surface colour, not a text colour. */
+  --brand-success-text: #047857;
+}
+
+[data-theme="dark"] {
+  --brand-accent: #e07a45;
+  --brand-text: #e07a45;
+  --brand-success-text: #6ee7b7;
+}
+
+.brand-note {
+  border-color: color-mix(in srgb, var(--brand-accent) 28%, transparent);
+  background-color: color-mix(in srgb, var(--brand-accent) 6%, transparent);
+}
+
+/* Keep the public site on the AutoCare palette while the admin retains its
+   existing operational theme. */
+.public-brand {
+  --color-primary: #c05621;
+  --color-primary-content: #ffffff;
+  --color-secondary: #132230;
+  --color-secondary-content: #ffffff;
+  --color-accent: #c05621;
+  --color-accent-content: #ffffff;
+}
+
+/* On dark surfaces the lighter accent keeps text and icons readable, while the
+   dark content colour keeps primary buttons above AA contrast. */
+[data-theme="dark"] .public-brand {
+  --color-primary: #e07a45;
+  --color-primary-content: #1b120c;
+  --color-accent: #e07a45;
+  --color-accent-content: #1b120c;
+}
+
+.booking-cta.booking-cta {
+  background-color: #c05621;
+  border-color: #c05621;
+  color: #ffffff;
+}
+
+.booking-cta.booking-cta:hover {
+  background-color: #9c4318;
+  border-color: #9c4318;
+}
+
+.booking-cta.booking-cta:focus-visible {
+  outline: 3px solid var(--brand-accent);
+  outline-offset: 2px;
+}

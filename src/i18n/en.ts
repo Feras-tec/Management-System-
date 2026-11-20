@@ -6,6 +6,8 @@ const en = {
     employees: "Employees",
     products: "Products",
     customers: "Customers",
+    reviews: "Reviews",
+    contactMessages: "Contact messages",
     sales: "Sales",
     reports: "Reports",
     settings: "Settings",

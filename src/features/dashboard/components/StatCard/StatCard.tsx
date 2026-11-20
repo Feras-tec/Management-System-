@@ -10,7 +10,7 @@ export default function StatCard({ title, value, icon }: StatCardProps) {
               {title}
             </p>
 
-            <p className="mt-1 text-2xl font-bold tracking-tight sm:mt-2 sm:text-4xl">
+            <p className="mt-1 break-words text-xl font-bold tracking-tight sm:mt-2 sm:text-4xl">
               {value}
             </p>
           </div>

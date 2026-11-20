@@ -467,7 +467,7 @@ function HistoryModal({
           <p className="mt-6">{de ? "Keine Bewegungen." : "No movements."}</p>
         )}
         <div className="mt-6 overflow-x-auto">
-          <table className="table">
+          <table className="table min-w-[36rem]">
             <thead>
               <tr>
                 <th>{de ? "Typ" : "Type"}</th>
@@ -602,7 +602,7 @@ export function ProductsPage({
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-4xl font-bold">
+        <h1 className="break-words text-2xl font-bold sm:text-4xl">
           {de ? "Produkte & Bestand" : "Products & Inventory"}
         </h1>
         <button className="btn btn-primary" onClick={() => setEditing(null)}>
@@ -739,7 +739,7 @@ export function ProductsPage({
         ))}
       </div>
       <div className="hidden overflow-x-auto md:block">
-        <table className="table table-zebra">
+        <table className="table table-zebra min-w-[40rem]">
           <thead>
             <tr>
               <th>SKU</th>

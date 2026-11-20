@@ -2,13 +2,34 @@ export type BookingStatus = "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED
 export function bookingStatusLabel(status:BookingStatus,language:"de"|"en"){const de:Record<BookingStatus,string>={PENDING:"Ausstehend",CONFIRMED:"Bestätigt",IN_PROGRESS:"In Bearbeitung",COMPLETED:"Abgeschlossen",CANCELLED:"Storniert",NO_SHOW:"Nicht erschienen"};return language==="de"?de[status]:status.replace("_"," ")}
 export type VehicleType = "SEDAN" | "SUV" | "HATCHBACK" | "VAN" | "COUPE" | "WAGON" | "OTHER";
 
+const vehicleLabels: Record<VehicleType, Record<"de" | "en", string>> = {
+  SEDAN: { de: "Limousine", en: "Sedan" },
+  SUV: { de: "SUV", en: "SUV" },
+  HATCHBACK: { de: "Schrägheck", en: "Hatchback" },
+  VAN: { de: "Van", en: "Van" },
+  COUPE: { de: "Coupé", en: "Coupe" },
+  WAGON: { de: "Kombi", en: "Station wagon" },
+  OTHER: { de: "Sonstiges", en: "Other" },
+};
+
+export function vehicleTypeLabel(type: VehicleType, language: "de" | "en") {
+  return vehicleLabels[type][language];
+}
+
 export interface BookingSummary { id?: string; bookingNumber: string; status: BookingStatus; startsAt: string; endsAt?: string; timezone?: string; notes?: string | null; customer?: { firstName:string; lastName:string; email:string; phone:string }; vehicle?: { type:VehicleType }; vehicleType?: VehicleType; service:{ id?:string; nameDe:string; nameEn:string } }
 export interface BookingList { items: BookingSummary[]; total:number; page:number; limit:number }
 export interface CustomerList { items:Array<{id:string;firstName:string;lastName:string;email:string;phone:string;isActive:boolean;createdAt:string}>;total:number;page:number;limit:number }
 
 const base=import.meta.env.VITE_API_BASE_URL;
 function url(path:string){if(!base)throw new Error("Missing VITE_API_BASE_URL.");return new URL(path,base)}
-async function json<T>(responseInput:Response|Promise<Response>):Promise<T>{const response=await responseInput;if(!response.ok){const body=await response.json().catch(()=>null) as {code?:string}|null;throw new Error(body?.code??`REQUEST_${response.status}`)}return response.json() as Promise<T>}
+async function json<T>(responseInput: Response | Promise<Response>): Promise<T> {
+  const response = await responseInput;
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as { error?: { code?: string }; code?: string } | null;
+    throw new Error(body?.error?.code ?? body?.code ?? `REQUEST_${response.status}`);
+  }
+  return response.json() as Promise<T>;
+}
 async function auth<T>(path:string,token:()=>Promise<string|null>,init?:RequestInit){const value=await token();if(!value)throw new Error("AUTH_REQUIRED");return json<T>(await fetch(url(path),{...init,headers:{"Content-Type":"application/json",Authorization:`Bearer ${value}`,...init?.headers}}))}
 export const bookingApi={
  services:()=>json<Array<{id:string;slug:string;nameDe:string;nameEn:string;durationMinutes:number}>>(fetch(url("/api/v1/public/services"))),

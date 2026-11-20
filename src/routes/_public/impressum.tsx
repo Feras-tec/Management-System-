@@ -50,7 +50,7 @@ function ImpressumPage() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <div className="max-w-3xl">
-        <p className="font-semibold text-primary">AutoCare</p>
+        <p className="font-semibold text-[var(--brand-text)]">AutoCare</p>
         <h1 className="mt-2 text-4xl font-black sm:text-5xl">Impressum</h1>
         <p className="mt-5 text-lg opacity-70">
           {de
@@ -77,7 +77,7 @@ function ImpressumPage() {
                   <Icon className="size-6" aria-hidden="true" />
                 </span>
                 <h2 className="card-title mt-3">{title}</h2>
-                <p className="font-semibold">{first}</p>
+                <p className="break-words font-semibold">{first}</p>
                 <p className="flex items-start gap-2 text-sm opacity-70">
                   <MapPin
                     className="mt-0.5 size-4 shrink-0"

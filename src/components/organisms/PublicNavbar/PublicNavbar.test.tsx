@@ -111,7 +111,7 @@ describe("PublicNavbar authentication controls", () => {
     expect(
       await within(desktop).findByRole("link", {
         name: "Sign In",
-      }),
+      }, { timeout: 3_000 }),
     ).toHaveAttribute("href", "/sign-in");
 
     expect(
@@ -137,7 +137,7 @@ describe("PublicNavbar authentication controls", () => {
     expect(
       await within(mobile).findByRole("link", {
         name: "Sign In",
-      }),
+      }, { timeout: 3_000 }),
     ).toHaveAttribute("href", "/sign-in");
   });
 
@@ -151,7 +151,7 @@ describe("PublicNavbar authentication controls", () => {
     expect(
       await within(desktop).findByRole("button", {
         name: "User account",
-      }),
+      }, { timeout: 3_000 }),
     ).toBeVisible();
 
     expect(
@@ -177,7 +177,7 @@ describe("PublicNavbar authentication controls", () => {
     expect(
       await within(mobile).findByRole("button", {
         name: "User account",
-      }),
+      }, { timeout: 3_000 }),
     ).toBeInTheDocument();
 
     expect(

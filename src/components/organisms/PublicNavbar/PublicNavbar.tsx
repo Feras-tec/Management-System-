@@ -4,6 +4,7 @@ import { CalendarCheck, Menu, Moon, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
 
+import { BrandLogo } from "../../atoms/BrandLogo/BrandLogo";
 import { useAppPreferences } from "../../../context";
 import { useTranslation } from "../../../i18n";
 import { LanguageToggle } from "../../molecules/LanguageToggle";
@@ -90,23 +91,16 @@ export default function PublicNavbar() {
       <div className="navbar mx-auto max-w-7xl px-3 sm:px-4 lg:px-2 xl:px-6">
         <Link
           to="/"
-          className="flex flex-1 items-center gap-3"
+          className="flex min-w-0 flex-1 items-center"
+          aria-label={language === "de" ? "AutoCare Startseite" : "AutoCare home"}
           onClick={() => setMenu(false)}
         >
-          <img
-            src="/brand/autocare-logo.svg"
-            alt="AutoCare"
-            width={40}
-            height={40}
-            className="size-10 shrink-0"
-          />
-
-          <span className="text-xl font-black tracking-tight">AutoCare</span>
+          <BrandLogo className="size-16 sm:size-18" />
         </Link>
 
         <nav
           aria-label={language === "de" ? "Hauptnavigation" : "Main navigation"}
-          className="hidden items-center gap-0 lg:flex"
+          className="hidden items-center gap-0 xl:flex"
         >
           {links.map((item) => (
             <Link
@@ -122,7 +116,7 @@ export default function PublicNavbar() {
           ))}
         </nav>
 
-        <div className="ml-1 hidden items-center gap-0 lg:flex">
+        <div className="ml-1 hidden items-center gap-0 xl:flex">
           <LanguageToggle className="btn-sm" />
 
           <button
@@ -136,7 +130,7 @@ export default function PublicNavbar() {
 
           <Link
             to="/booking"
-            className="btn btn-primary btn-sm ml-0 gap-1 whitespace-nowrap px-2"
+            className="btn btn-primary booking-cta btn-sm ml-0 gap-1 whitespace-nowrap px-2"
           >
             <CalendarCheck size={18} />
             {language === "de" ? "Termin buchen" : "Book appointment"}
@@ -158,7 +152,7 @@ export default function PublicNavbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1 lg:hidden">
+        <div className="flex items-center gap-1 xl:hidden">
           <LanguageToggle className="btn-sm" />
 
           <button
@@ -201,7 +195,7 @@ export default function PublicNavbar() {
             initial={reduced ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={reduced ? undefined : { opacity: 0, height: 0 }}
-            className="overflow-hidden border-t border-base-300 bg-base-100 lg:hidden"
+            className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-base-300 bg-base-100 xl:hidden"
           >
             <div className="mx-auto grid max-w-7xl gap-1 p-4">
               {links.map((item) => (
@@ -220,7 +214,7 @@ export default function PublicNavbar() {
 
               <Link
                 to="/booking"
-                className="btn btn-primary mt-2"
+                className="btn btn-primary booking-cta mt-2"
                 onClick={() => setMenu(false)}
               >
                 {language === "de" ? "Termin buchen" : "Book appointment"}

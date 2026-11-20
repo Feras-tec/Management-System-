@@ -10,6 +10,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { Reveal } from "../../components/motion/Reveal";
+import { Testimonials } from "../../components/organisms/Testimonials";
 import { useAppPreferences } from "../../context";
 import { usePublicServices } from "../../features/services/api/queries";
 import {
@@ -57,26 +58,41 @@ function PublicHomePage() {
   return (
     <>
       <section className="relative overflow-hidden border-b border-base-300 bg-base-200/50">
-        <div className="relative mx-auto grid min-h-[36rem] max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2">
-          <Reveal>
-            <p className="flex items-center gap-2 font-semibold text-primary">
-              <Sparkles size={18} />
-              {de
-                ? "Pflege, Schutz und Präzision"
-                : "Care, protection and precision"}
+        <div className="relative mx-auto grid min-h-0 max-w-7xl items-center gap-10 px-4 py-14 sm:gap-12 sm:px-6 sm:py-20 lg:min-h-[36rem] lg:grid-cols-2">
+          <Reveal visibleOnMount>
+            <p className="flex items-center gap-2.5 text-sm font-semibold leading-6 text-[var(--brand-text)] sm:text-base">
+              <svg
+                aria-hidden="true"
+                focusable="false"
+                viewBox="0 0 28 24"
+                className="h-6 w-7 shrink-0 text-[var(--brand-accent)]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 2.5c.8 4.7 2.3 6.2 7 7-4.7.8-6.2 2.3-7 7-.8-4.7-2.3-6.2-7-7 4.7-.8 6.2-2.3 7-7Z" />
+                <path d="M2.5 21c3.2-.2 5.4-1.1 8.3-2.4 4.7-2.1 8.6-2.7 14.7-2.1" />
+              </svg>
+              <span>
+                {de
+                  ? "Präzise Pflege. Dauerhafter Schutz."
+                  : "Precision Care. Lasting Protection."}
+              </span>
             </p>
-            <h1 className="mt-5 text-5xl font-black leading-tight tracking-tight sm:text-6xl">
+            <h1 className="mt-5 break-words text-3xl font-black leading-tight tracking-tight hyphens-none sm:text-5xl sm:hyphens-auto lg:text-6xl">
               {de
                 ? "Professionelle Pflege für jedes Detail Ihres Fahrzeugs."
                 : "Professional care for every detail of your vehicle."}
             </h1>
-            <p className="mt-6 text-lg leading-8 opacity-70">
+            <p className="mt-6 text-base leading-7 opacity-70 sm:text-lg sm:leading-8">
               {de
                 ? "Spezialisierte Fahrzeugservices mit einem transparenten digitalen Buchungsablauf."
                 : "Specialist automotive services with a clear digital booking experience."}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link to="/booking" className="btn btn-primary btn-lg">
+              <Link to="/booking" className="btn btn-primary booking-cta btn-lg">
                 <CalendarCheck />
                 {de ? "Termin buchen" : "Book appointment"}
               </Link>
@@ -100,7 +116,7 @@ function PublicHomePage() {
               ))}
             </div>
           </Reveal>
-          <Reveal className="relative">
+          <Reveal className="relative" visibleOnMount>
             <motion.div
               className="group relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-base-300 bg-base-100 shadow-2xl transition-shadow duration-300 hover:shadow-[0_24px_60px_-28px_rgba(0,0,0,0.45)]"
               whileHover={reduced ? undefined : { y: -3 }}
@@ -138,10 +154,10 @@ function PublicHomePage() {
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-semibold text-primary">
+              <p className="font-semibold text-[var(--brand-text)]">
                 {de ? "Unsere Leistungen" : "Our services"}
               </p>
-              <h2 className="mt-2 text-4xl font-black">
+              <h2 className="mt-2 break-words text-2xl font-black sm:text-4xl">
                 {de
                   ? "Spezialisierte Fahrzeugpflege"
                   : "Specialist vehicle care"}
@@ -178,7 +194,7 @@ function PublicHomePage() {
                           decoding="async"
                           onError={(event) => {
                             event.currentTarget.src =
-                              "/brand/autocare-logo.svg";
+                              "/brand/autocare-symbol.svg";
                           }}
                         />
                       </figure>
@@ -204,7 +220,7 @@ function PublicHomePage() {
                       <Link
                         to="/services/$slug"
                         params={{ slug: s.slug }}
-                        className="btn btn-primary btn-sm mt-2"
+                        className="btn btn-outline btn-primary btn-sm mt-2"
                       >
                         {de ? "Details" : "Details"}
                       </Link>
@@ -217,7 +233,7 @@ function PublicHomePage() {
       <section className="bg-neutral py-20 text-neutral-content">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2">
           <Reveal>
-            <h2 className="text-4xl font-black">
+            <h2 className="text-2xl font-black sm:text-4xl">
               {de ? "Warum AutoCare?" : "Why AutoCare?"}
             </h2>
             <p className="mt-4 max-w-xl text-neutral-content/70">
@@ -235,7 +251,7 @@ function PublicHomePage() {
             </div>
           </Reveal>
           <Reveal>
-            <h2 className="text-3xl font-black">
+            <h2 className="text-2xl font-black sm:text-3xl">
               {de ? "So funktioniert die Buchung" : "How booking works"}
             </h2>
             <ol className="mt-6 space-y-3">
@@ -254,9 +270,10 @@ function PublicHomePage() {
           </Reveal>
         </div>
       </section>
+      <Testimonials language={language} />
       <section className="mx-auto max-w-5xl px-4 py-20 text-center">
         <Reveal>
-          <h2 className="text-4xl font-black">
+          <h2 className="text-2xl font-black sm:text-4xl">
             {de
               ? "Bereit für Ihren nächsten Termin?"
               : "Ready for your next appointment?"}
@@ -266,7 +283,7 @@ function PublicHomePage() {
               ? "Wählen Sie die passende Leistung und einen verfügbaren Termin."
               : "Choose the right service and an available time."}
           </p>
-          <Link to="/booking" className="btn btn-primary btn-lg mt-8">
+          <Link to="/booking" className="btn btn-primary booking-cta btn-lg mt-8">
             <CalendarCheck />
             {de ? "Jetzt buchen" : "Book now"}
           </Link>

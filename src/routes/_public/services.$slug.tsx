@@ -76,14 +76,14 @@ function ServiceDetailsPage() {
             undefined
           }
           alt={name}
-          className="mt-6 h-80 w-full rounded-3xl object-cover shadow-xl"
+          className="mt-6 h-56 w-full rounded-2xl object-cover shadow-xl sm:h-80 sm:rounded-3xl"
           onError={(event) => {
-            event.currentTarget.src = "/brand/autocare-logo.svg";
+            event.currentTarget.src = "/brand/autocare-symbol.svg";
           }}
         />
       ) : (
         <div
-          className="mt-6 flex h-80 items-center justify-center rounded-3xl bg-base-200"
+          className="mt-6 flex h-56 items-center justify-center rounded-2xl bg-base-200 sm:h-80 sm:rounded-3xl"
           aria-label={
             language === "de"
               ? "Leistungsbild folgt"
@@ -93,8 +93,8 @@ function ServiceDetailsPage() {
           <Wrench className="size-20 text-primary" />
         </div>
       )}
-      <h1 className="mt-6 text-4xl font-bold">{name}</h1>
-      <p className="mt-6 text-lg leading-8">{description}</p>
+      <h1 className="mt-6 break-words text-3xl font-bold sm:text-4xl">{name}</h1>
+      <p className="mt-6 text-base leading-7 sm:text-lg sm:leading-8">{description}</p>
       <div className="mt-8 flex flex-wrap gap-4 text-base-content/70">
         <span className="badge badge-lg">
           <Clock3 className="mr-1 size-4" />
@@ -150,7 +150,7 @@ function ServiceDetailsPage() {
       <Link
         to="/booking"
         search={{ service: slug }}
-        className="btn btn-primary btn-lg mt-10"
+        className="btn btn-primary booking-cta btn-lg mt-10 w-full sm:w-auto"
       >
         <CalendarCheck />
         {language === "de" ? "Termin buchen" : "Book appointment"}

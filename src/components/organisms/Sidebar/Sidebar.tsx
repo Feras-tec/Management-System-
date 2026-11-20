@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useAuth } from "@clerk/clerk-react";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { House } from "lucide-react";
 
 import { useTranslation } from "../../../i18n";
+import { createBackendClient } from "../../../api/backendClient";
 
 import type { SidebarItem } from "./Sidebar.types";
 
@@ -10,6 +13,20 @@ export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const { t } = useTranslation();
+  const { sessionId } = useAuth();
+  const { auth } = useRouteContext({ from: "/admin" });
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const identity = useQuery({
+    queryKey: ["admin-navigation-identity", sessionId],
+    enabled: auth.isSignedIn && Boolean(sessionId && baseUrl),
+    retry: false,
+    queryFn: () =>
+      createBackendClient({ baseUrl, getAccessToken: auth.getAccessToken })
+        .getCurrentIdentity(),
+  });
+  const canAccessAdminTools =
+    auth.isSignedIn && Boolean(sessionId) && identity.isSuccess &&
+    identity.data.user.isActive === true && identity.data.user.role === "ADMIN";
 
   const items = useMemo<SidebarItem[]>(
     () => [
@@ -18,11 +35,15 @@ export default function Sidebar() {
       { label: t.common.employees, to: "/admin/employees" },
       { label: t.common.products, to: "/admin/products" },
       { label: t.common.customers, to: "/admin/customers" },
+      ...(canAccessAdminTools ? [
+        { label: t.common.reviews, to: "/admin/reviews" },
+        { label: t.common.contactMessages, to: "/admin/contact-messages" },
+      ] as const : []),
       { label: t.common.sales, to: "/admin/sales" },
       { label: t.common.reports, to: "/admin/reports" },
       { label: t.common.settings, to: "/admin/settings" },
     ],
-    [t.common],
+    [t.common, canAccessAdminTools],
   );
 
   return (

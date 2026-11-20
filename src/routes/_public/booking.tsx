@@ -8,6 +8,7 @@ import { useAppPreferences } from "../../context";
 import {
   bookingApi,
   bookingStatusLabel,
+  vehicleTypeLabel,
   type VehicleType,
 } from "../../features/bookings/api";
 import { usePageMeta } from "../../utils/usePageMeta";
@@ -161,14 +162,14 @@ export function BookingPage({
   };
   if (confirmation)
     return (
-      <section className="mx-auto max-w-2xl px-4 py-16">
+      <section className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           className="card bg-success/10 shadow-xl"
         >
           <div className="card-body">
-            <h1 className="card-title text-3xl">
+            <h1 className="card-title break-words text-2xl sm:text-3xl">
               {de
                 ? "Ihre Buchung wurde gespeichert."
                 : "Your booking was saved."}
@@ -205,9 +206,9 @@ export function BookingPage({
     );
   return (
     <section className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-4xl font-bold">{labels.title}</h1>
+      <h1 className="text-3xl font-bold sm:text-4xl">{labels.title}</h1>
       <ol
-        className="steps steps-horizontal mt-8 w-full overflow-x-auto"
+        className="steps steps-vertical mt-6 w-full sm:steps-horizontal sm:overflow-x-auto"
         aria-label={de ? "Buchungsschritte" : "Booking steps"}
       >
         {labels.steps.map((label, index) => (
@@ -235,7 +236,7 @@ export function BookingPage({
             initial={reduced ? false : { opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={reduced ? undefined : { opacity: 0, x: -20 }}
-            className="rounded-2xl bg-base-200 p-6"
+            className="rounded-2xl bg-base-200 p-4 sm:p-6"
           >
             {step === 0 && (
               <div className="grid gap-5 md:grid-cols-2">
@@ -270,7 +271,7 @@ export function BookingPage({
                         }
                       >
                         {vehicles.map((v) => (
-                          <option key={v}>{v}</option>
+                          <option key={v} value={v}>{vehicleTypeLabel(v, language)}</option>
                         ))}
                       </select>
                     </label>
@@ -402,15 +403,16 @@ export function BookingPage({
                     </p>
                     <p>
                       <strong>{de ? "Fahrzeug" : "Vehicle"}:</strong>{" "}
-                      {value.carType}
+                      {vehicleTypeLabel(value.carType, language)}
                     </p>
                     <p>
                       <strong>{de ? "Termin" : "Appointment"}:</strong> {date} ·{" "}
                       {time}
                     </p>
-                    <p>
+                    <p className="break-words">
                       <strong>{de ? "Kunde" : "Customer"}:</strong>{" "}
-                      {value.firstName} {value.lastName} · {value.email} ·{" "}
+                      {value.firstName} {value.lastName} ·{" "}
+                      <span className="break-all">{value.email}</span> ·{" "}
                       {value.phone}
                     </p>
                     {value.notes && (
@@ -427,7 +429,11 @@ export function BookingPage({
         </AnimatePresence>
         {create.isError && (
           <div className="alert alert-error mt-5">
-            {create.error.message === "BOOKING_SLOT_UNAVAILABLE"
+            {create.error.message === "RATE_LIMITED"
+              ? de
+                ? "Zu viele Buchungsversuche. Bitte versuchen Sie es später erneut."
+                : "Too many booking attempts. Please try again later."
+              : create.error.message === "BOOKING_SLOT_UNAVAILABLE"
               ? de
                 ? "Dieser Termin ist nicht mehr verfügbar."
                 : "This slot is no longer available."
